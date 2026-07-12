@@ -21,8 +21,8 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text:latest")
 
-MEMORIES_FILE = Path("/home/stephen/Documents/www/AntiGravityPrompt/.antigravity/memories/patterns_and_lessons.md")
-PROJECT_NAME = "Anti-Gravity Prompt Protocol"
+MEMORIES_FILE = Path(__file__).resolve().parent.parent / ".agent" / "memories" / "patterns_and_lessons.md"
+PROJECT_NAME = "Agents Protocol"
 
 class MemorySync:
     def __init__(self, uri, user, password):
