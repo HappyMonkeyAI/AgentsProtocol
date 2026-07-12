@@ -1,6 +1,6 @@
-# Anti-Gravity Agent Skills Catalog
+# Agents Protocol Skills Catalog
 
-This catalog contains skills integrated from the [antigravity-skills](https://github.com/rmyndharis/antigravity-skills) repository, curated to support the Anti-Gravity Development Protocol.
+This catalog contains skills integrated from the [antigravity-skills](https://github.com/rmyndharis/antigravity-skills) repository, curated to support the Agents Protocol.
 
 ## Skills by Protocol Capability
 
@@ -11,7 +11,7 @@ This catalog contains skills integrated from the [antigravity-skills](https://gi
 | [`architect-review`](skills/architect-review/SKILL.md) | System architecture reviews and design validation |
 | [`architecture-decision-records`](skills/architecture-decision-records/SKILL.md) | Documenting architectural decisions as ADRs |
 
-### 📝 For Anti-Gravity Coding Standards
+### 📝 For Coding Standards
 
 | Skill | Purpose |
 |-------|---------|

@@ -1,7 +1,7 @@
 # VOICE_LOG_PROTOCOL.md
 
 ## 🎙 Overview
-The Voice Log Protocol ensures that all autonomous actions, task completions, and system audits performed by the Antigravity agent are audible and accessible. This protocol bridges the gap between silent code execution and user awareness via the AG Voice Log application.
+The Voice Log Protocol ensures that all autonomous actions, task completions, and system audits performed by the Agents Protocol agent are audible and accessible. This protocol bridges the gap between silent code execution and user awareness via the AG Voice Log application.
 
 ## 🧠 Core Directive
 Every significant milestone in a task MUST be logged to the centralized voice reports directory. This allows the user to stay informed of the agent's progress and decisions without needing to monitor the terminal or files manually.
