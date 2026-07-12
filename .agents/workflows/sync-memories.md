@@ -13,7 +13,7 @@ This workflow automates the process of taking local project learnings from `.age
 2. **Run Sync Script**:
 // turbo
 ```bash
-python3 /home/stephen/projects/AntigravityAgentsPromptProtocol/scripts/sync_memories.py &
+python3 ./scripts/sync_memories.py &
 ```
 
 3. **Verify in Neo4j**: Use the `neo4j-semantic-search` tool or query Neo4j directly to ensure the new `Memory` nodes are linked to the `Agents Protocol` project and associated `Concept` nodes.
