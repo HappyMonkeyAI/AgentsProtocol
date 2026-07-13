@@ -54,10 +54,20 @@ Architect → Manager (state.json) → Worker (micro-tasks) → Owner (audit & m
 
 ---
 
-## 4. Tool & Ground-Truth Discipline
+## 4. Tool, Ground-Truth & Resource Discipline
 - Prefer MCP / tool calls over hallucination.
 - Query external systems first (DBs, registries, semantic search).
 - Port conflicts: Always check launcher/registry before binding.
+
+### Resource-aware execution
+When a Resource Sentinel MCP is available, preflight workloads likely to consume substantial shared-host capacity (for example full builds/test suites, repository indexing, model jobs, containers, or parallel agent/CLI launches):
+1. Call `get_resource_snapshot` for current pressure.
+2. Request a slot with a conservative memory estimate, CPU weight, and bounded lease duration.
+3. Start heavy work only when the ticket is admitted and carries a lease; if queued, switch to light work or poll the ticket rather than busy-waiting.
+4. Heartbeat long runs and release the lease in cleanup on success or failure.
+5. Treat agent estimates as hints: record measured peaks when available and preserve host headroom. Never bypass a queue merely because an agent claims the task is urgent.
+
+If Resource Sentinel is unavailable, degrade gracefully: inspect live system resources using the platform’s normal tools and avoid launching competing heavy workloads blindly. Lightweight reads, planning, and small edits do not require a lease.
 
 ---
 
