@@ -200,16 +200,6 @@ Write the test file and run it.
 ```
 Stop. That's not the right approach because [REASON]. Let's try [NEW DIRECTION] instead.
 ```
-
-### Fresh Start
-```
-To start a fresh conversation with Kiro:
-- Type /clear in the terminal
-- Click the + sign at the top of the chat window in your IDE
-
-Then begin with: Read README.md. I need to [CLEAR GOAL].
-```
-
 ---
 
 ## 🎯 The CRAFT Method (When in Doubt)
