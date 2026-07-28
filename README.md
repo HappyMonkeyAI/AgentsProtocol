@@ -1,6 +1,6 @@
 # Agents Protocol
 
-A high-velocity development framework for autonomous AI agents within the Google Antigravity IDE.
+A high-velocity development framework for AI agents.
 
 ## 🚀 Overview
 
@@ -45,11 +45,7 @@ Inspired by Langchain Deep Agents, our memory is split between ephemeral context
 
 ## 🌐 Global Registration & Findings
 
-To apply the Agents Protocol globally:
-
-1. **Copy** `system-prompt.md` (or your custom prompt) into `~/.deepagents/agent/agent.md`.
-2. **Append** the content to the end of the file – this merges the protocol with the core agent instructions.
-3. **Restart** the Antigravity IDE or reload the agent to pick up the changes.
+To apply the Agents Protocol globally ask your AI agent to use the provided BOOTSTRAP.md to setup the defined infrastructure.
 
 ### What We Verified
 
@@ -57,7 +53,7 @@ To apply the Agents Protocol globally:
 - **Pulse Reset** – after three consecutive verification failures, the agent executed `git reset --hard HEAD` to revert to the last clean state.
 - Both behaviors were demonstrated in the `tests/protocol_verification/` stress‑test suite.
 
-Now every new Antigravity session will enforce these autonomous Git actions, ensuring momentum is never lost.
+Now every new AI session will enforce these actions and rules, ensuring momentum is never lost.
 
 ## 🌟 Credits & Prior Art
 
