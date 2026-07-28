@@ -37,7 +37,7 @@ Memory is **pre-execution context enrichment**, not passive logs.
 **Documentation Spine (Mandatory):**
 - `README.md` — User-facing overview + quickstart
 - `CONTEXT.md` — Stack, rules, architecture decisions, "what not to do"
-- `HERMES.md` or equivalent — Agent behavior & workflow rules (this file or symlink)
+- `AGENTS.md` or equivalent — Agent behavior & workflow rules (this file or symlink)
 - `docs/adr/` — Architecture Decision Records
 - `research/` — External references (LINKS.md, per-project notes, templates)
 
