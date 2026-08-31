@@ -12,6 +12,8 @@ import {
 } from '../../shared/protocol';
 import { makeHeightFn, heightToBiome, biomeColor, isWalkable } from '../../shared/noiseWorld';
 import { createStylizedMaterial } from './stylizedMaterials';
+import { createChestModel, createPlayerModel } from './assets/factories';
+import { buildLandscapeChunk, createGrass, createTree } from './landscape';
 
 const app = document.getElementById('app')!;
 const menu = document.getElementById('menu')!;
@@ -109,10 +111,13 @@ const playersGroup = new THREE.Group();
 scene.add(playersGroup);
 const structuresGroup = new THREE.Group();
 scene.add(structuresGroup);
+let starterChest: THREE.Group | null = null;
+let starterLandscape: THREE.Group | null = null;
 
 const remoteMeshes = new Map<string, THREE.Object3D>();
 const structureMeshes = new Map<string, THREE.Object3D>();
 const chunkMeshes = new Map<string, THREE.InstancedMesh>();
+const landscapeChunks = new Map<string, THREE.Group>();
 const blockEdits = new Map<string, 'removed' | 'grass' | 'dirt' | 'stone'>();
 const raycaster = new THREE.Raycaster();
 const screenCenter = new THREE.Vector2(0, 0);
@@ -157,7 +162,7 @@ function runConsoleCommand(raw: string) {
   const command = raw.trim().toLowerCase();
   if (command === '/creative') {
     creativeMode = true;
-    consoleOutput.textContent = 'creative mode enabled · fly with WASD + Space/Ctrl';
+    consoleOutput.textContent = 'creative mode enabled · fly with WASD + Space/E up, Q/Ctrl down';
   } else if (command === '/survival') {
     creativeMode = false;
     consoleOutput.textContent = 'survival mode enabled';
@@ -168,6 +173,7 @@ function runConsoleCommand(raw: string) {
 }
 
 window.addEventListener('keydown', (e) => {
+  if (creativeMode && e.code === 'KeyW' && e.ctrlKey) e.preventDefault();
   if (e.code === 'Backquote') {
     e.preventDefault();
     setConsole(!consoleOpen);
@@ -199,23 +205,32 @@ document.addEventListener('mousemove', (e) => {
 });
 
 function makePlayerMesh(p: PlayerState): THREE.Object3D {
-  const g = new THREE.Group();
-  const body = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.35, 0.7, 4, 8),
-    createStylizedMaterial(p.color),
-  );
-  body.castShadow = true;
-  body.position.y = 0.9;
-  g.add(body);
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.28, 12, 12),
-    createStylizedMaterial(0xffe0bd),
-  );
-  head.position.y = 1.7;
-  head.castShadow = true;
-  g.add(head);
+  const g = createPlayerModel(p.role, p.color).group;
   g.userData.playerId = p.id;
   return g;
+}
+
+function showStarterChest(p: PlayerState) {
+  if (starterChest) worldRoot.remove(starterChest);
+  if (starterLandscape) worldRoot.remove(starterLandscape);
+  starterChest = createChestModel().group;
+  starterChest.position.set(p.position.x + 2, groundHeight(p.position.x + 2, p.position.z), p.position.z);
+  worldRoot.add(starterChest);
+  starterLandscape = new THREE.Group();
+  starterLandscape.name = 'landscape-starter-showcase';
+  const treeX = p.position.x + 1.2;
+  const treeZ = p.position.z;
+  const tree = createTree(0.9);
+  tree.position.set(treeX, groundHeight(treeX, treeZ), treeZ);
+  starterLandscape.add(tree);
+  for (const offset of [-1.2, 0, 1.2]) {
+    const grass = createGrass(0.9);
+    const grassX = p.position.x + 1.2 + offset;
+    const grassZ = p.position.z;
+    grass.position.set(grassX, groundHeight(grassX, grassZ), grassZ);
+    starterLandscape.add(grass);
+  }
+  worldRoot.add(starterLandscape);
 }
 
 function makeStructureMesh(s: StructureState): THREE.Object3D {
@@ -288,6 +303,9 @@ function buildChunk(cx: number, cz: number) {
   mesh.userData.blocks = blocks;
   worldRoot.add(mesh);
   chunkMeshes.set(key, mesh);
+  const landscape = buildLandscapeChunk(cx, cz, size, tile, groundHeight, (height) => isWalkable(heightToBiome(height)));
+  worldRoot.add(landscape);
+  landscapeChunks.set(key, landscape);
 }
 
 function ensureChunksAround(px: number, pz: number) {
@@ -310,6 +328,11 @@ function ensureChunksAround(px: number, pz: number) {
       mesh.geometry.dispose();
       (mesh.material as THREE.Material).dispose();
       chunkMeshes.delete(k);
+      const landscape = landscapeChunks.get(k);
+      if (landscape) {
+        worldRoot.remove(landscape);
+        landscapeChunks.delete(k);
+      }
     }
   }
 }
@@ -325,6 +348,11 @@ function rebuildChunk(cx: number, cz: number) {
   mesh.geometry.dispose();
   (mesh.material as THREE.Material).dispose();
   chunkMeshes.delete(key);
+  const landscape = landscapeChunks.get(key);
+  if (landscape) {
+    worldRoot.remove(landscape);
+    landscapeChunks.delete(key);
+  }
   buildChunk(cx, cz);
 }
 
@@ -347,7 +375,26 @@ function removeRemote(id: string) {
 }
 
 function groundHeight(x: number, z: number) {
-  return (Math.floor(heightAt(Math.floor(x / BLOCK_SIZE) * BLOCK_SIZE, Math.floor(z / BLOCK_SIZE) * BLOCK_SIZE) / BLOCK_SIZE) + 1) * BLOCK_SIZE;
+  const bx = Math.floor(x / BLOCK_SIZE);
+  const bz = Math.floor(z / BLOCK_SIZE);
+  const baseTop = Math.floor(heightAt(bx * BLOCK_SIZE, bz * BLOCK_SIZE) / BLOCK_SIZE);
+  let highest = MIN_BLOCK_Y - 1;
+  for (let by = MIN_BLOCK_Y; by <= baseTop; by += 1) {
+    if (blockEdits.get(blockKey(bx, by, bz)) !== 'removed') highest = by;
+  }
+  for (const [key, override] of blockEdits) {
+    if (override === 'removed') continue;
+    const [ex, ey, ez] = key.split(',').map(Number);
+    if (ex === bx && ez === bz) highest = Math.max(highest, ey);
+  }
+  return (highest + 1) * BLOCK_SIZE;
+}
+
+function isSolidBlockAt(bx: number, by: number, bz: number) {
+  const override = blockEdits.get(blockKey(bx, by, bz));
+  if (override) return override !== 'removed';
+  const baseTop = Math.floor(heightAt(bx * BLOCK_SIZE, bz * BLOCK_SIZE) / BLOCK_SIZE);
+  return by >= MIN_BLOCK_Y && by <= baseTop;
 }
 
 function targetBlock() {
@@ -496,6 +543,7 @@ enterBtn.addEventListener('click', () => {
           structuresGroup.add(m);
         }
         ensureChunksAround(self.position.x, self.position.z);
+        showStarterChest(self);
         updateStats();
       },
     );
@@ -576,17 +624,19 @@ function tick() {
         self.position.z -= velocity.z;
       }
 
-      const targetY = groundHeight(self.position.x, self.position.z) + 1.0;
       if (keys.has('Space') && grounded) {
         verticalV = 7.5;
         grounded = false;
       }
       verticalV -= 18 * dt;
       self.position.y += verticalV * dt;
-      if (self.position.y <= targetY) {
-        self.position.y = targetY;
+      const feetBlockY = Math.floor((self.position.y - 1.01) / BLOCK_SIZE);
+      const feetBlockX = Math.floor(self.position.x / BLOCK_SIZE);
+      const feetBlockZ = Math.floor(self.position.z / BLOCK_SIZE);
+      grounded = verticalV <= 0 && isSolidBlockAt(feetBlockX, feetBlockY, feetBlockZ);
+      if (grounded) {
+        self.position.y = (feetBlockY + 1) * BLOCK_SIZE + 1;
         verticalV = 0;
-        grounded = true;
       }
     }
     self.yaw = yaw;
