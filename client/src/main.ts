@@ -17,6 +17,8 @@ const app = document.getElementById('app')!;
 const menu = document.getElementById('menu')!;
 const statsEl = document.getElementById('stats')!;
 const hintEl = document.getElementById('hint')!;
+const crosshairEl = document.getElementById('crosshair')!;
+const hotbarEl = document.getElementById('hotbar')!;
 const invitePanel = document.getElementById('invite')!;
 const inviteSeedEl = document.getElementById('invite-seed')!;
 const inviteLinkEl = document.getElementById('invite-link')!;
@@ -107,7 +109,11 @@ scene.add(structuresGroup);
 
 const remoteMeshes = new Map<string, THREE.Object3D>();
 const structureMeshes = new Map<string, THREE.Object3D>();
-const chunkMeshes = new Map<string, THREE.Mesh>();
+const chunkMeshes = new Map<string, THREE.InstancedMesh>();
+const blockEdits = new Map<string, 'removed' | 'grass' | 'dirt' | 'stone'>();
+const raycaster = new THREE.Raycaster();
+const screenCenter = new THREE.Vector2(0, 0);
+let selectedBlock: 'grass' | 'dirt' | 'stone' = 'grass';
 
 const keys = new Set<string>();
 let pointerLocked = false;
@@ -116,6 +122,19 @@ let pitch = -0.25;
 const velocity = new THREE.Vector3();
 let verticalV = 0;
 let grounded = false;
+
+const BLOCK_SIZE = WORLD.tileSize;
+const MIN_BLOCK_Y = -3;
+
+function blockKey(x: number, y: number, z: number) {
+  return `${x},${y},${z}`;
+}
+
+function blockColor(kind: 'grass' | 'dirt' | 'stone', topBiome: ReturnType<typeof heightToBiome>): number {
+  if (kind === 'grass') return biomeColor(topBiome);
+  if (kind === 'stone') return 0x777777;
+  return 0x8d6e53;
+}
 
 window.addEventListener('keydown', (e) => keys.add(e.code));
 window.addEventListener('keyup', (e) => keys.delete(e.code));
@@ -180,39 +199,46 @@ function buildChunk(cx: number, cz: number) {
   if (chunkMeshes.has(key)) return;
   const size = WORLD.chunkSize;
   const tile = WORLD.tileSize;
-  const positions: number[] = [];
-  const colors: number[] = [];
-  const indices: number[] = [];
-  let v = 0;
-  const c = new THREE.Color();
+  const blocks: Array<{ x: number; y: number; z: number; kind: 'grass' | 'dirt' | 'stone' }> = [];
 
   for (let z = 0; z < size; z++) {
     for (let x = 0; x < size; x++) {
-      const wx = (cx * size + x) * tile;
-      const wz = (cz * size + z) * tile;
-      const h00 = heightAt(wx, wz);
-      const h10 = heightAt(wx + tile, wz);
-      const h01 = heightAt(wx, wz + tile);
-      const h11 = heightAt(wx + tile, wz + tile);
-      const biome = heightToBiome((h00 + h10 + h01 + h11) * 0.25);
-      c.setHex(biomeColor(biome));
-
-      positions.push(wx, h00, wz, wx + tile, h10, wz, wx, h01, wz + tile, wx + tile, h11, wz + tile);
-      for (let i = 0; i < 4; i++) colors.push(c.r, c.g, c.b);
-      indices.push(v, v + 2, v + 1, v + 1, v + 2, v + 3);
-      v += 4;
+      const bx = cx * size + x;
+      const bz = cz * size + z;
+      const wx = bx * tile;
+      const wz = bz * tile;
+      const topY = Math.floor(heightAt(wx, wz) / tile);
+      const biome = heightToBiome((topY + 0.5) * tile);
+      for (let by = MIN_BLOCK_Y; by <= topY; by++) {
+        const override = blockEdits.get(blockKey(bx, by, bz));
+        if (override === 'removed') continue;
+        const kind = override || (by === topY ? 'grass' : by < topY - 2 ? 'stone' : 'dirt');
+        blocks.push({ x: bx, y: by, z: bz, kind });
+      }
     }
   }
 
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  const mat = createStylizedMaterial(0xffffff, { vertexColors: true });
-  const mesh = new THREE.Mesh(geo, mat);
+  const mesh = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(tile, tile, tile),
+    createStylizedMaterial(0xffffff, { vertexColors: true }),
+    size * size * (Math.ceil(20 / tile) + 1),
+  );
+  const transform = new THREE.Object3D();
+  const color = new THREE.Color();
+  blocks.forEach((block, index) => {
+    transform.position.set((block.x + 0.5) * tile, (block.y + 0.5) * tile, (block.z + 0.5) * tile);
+    transform.updateMatrix();
+    mesh.setMatrixAt(index, transform.matrix);
+    const topBiome = heightToBiome(heightAt(block.x * tile, block.z * tile));
+    color.setHex(blockColor(block.kind, topBiome));
+    mesh.setColorAt(index, color);
+  });
+  mesh.count = blocks.length;
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   mesh.receiveShadow = true;
   mesh.userData.chunk = key;
+  mesh.userData.blocks = blocks;
   worldRoot.add(mesh);
   chunkMeshes.set(key, mesh);
 }
@@ -241,6 +267,20 @@ function ensureChunksAround(px: number, pz: number) {
   }
 }
 
+function rebuildChunk(cx: number, cz: number) {
+  const key = chunkKey(cx, cz);
+  const mesh = chunkMeshes.get(key);
+  if (!mesh) {
+    buildChunk(cx, cz);
+    return;
+  }
+  worldRoot.remove(mesh);
+  mesh.geometry.dispose();
+  (mesh.material as THREE.Material).dispose();
+  chunkMeshes.delete(key);
+  buildChunk(cx, cz);
+}
+
 function syncRemote(p: PlayerState) {
   let m = remoteMeshes.get(p.id);
   if (!m) {
@@ -260,7 +300,49 @@ function removeRemote(id: string) {
 }
 
 function groundHeight(x: number, z: number) {
-  return heightAt(x, z);
+  return (Math.floor(heightAt(Math.floor(x / BLOCK_SIZE) * BLOCK_SIZE, Math.floor(z / BLOCK_SIZE) * BLOCK_SIZE) / BLOCK_SIZE) + 1) * BLOCK_SIZE;
+}
+
+function targetBlock() {
+  raycaster.setFromCamera(screenCenter, camera);
+  const hit = raycaster.intersectObjects([...chunkMeshes.values()], false)[0];
+  if (!hit || hit.instanceId === undefined) return null;
+  const blocks = hit.object.userData.blocks as Array<{ x: number; y: number; z: number }> | undefined;
+  const block = blocks?.[hit.instanceId];
+  if (!block) return null;
+  return { block, normal: hit.face?.normal.clone() || new THREE.Vector3(0, 1, 0) };
+}
+
+function rebuildBlockChunk(x: number, z: number) {
+  rebuildChunk(Math.floor(x / WORLD.chunkSize), Math.floor(z / WORLD.chunkSize));
+}
+
+function mineBlock() {
+  if (!self) return;
+  const target = targetBlock();
+  if (!target) return;
+  const { x, y, z } = target.block;
+  blockEdits.set(blockKey(x, y, z), 'removed');
+  rebuildBlockChunk(x, z);
+}
+
+function placeBlock() {
+  if (!self) return;
+  const target = targetBlock();
+  if (!target) return;
+  const x = target.block.x + Math.round(target.normal.x);
+  const y = target.block.y + Math.round(target.normal.y);
+  const z = target.block.z + Math.round(target.normal.z);
+  const key = blockKey(x, y, z);
+  if (blockEdits.get(key) !== 'removed' && blockEdits.has(key)) return;
+  if (new THREE.Vector3(x + 0.5, y + 0.5, z + 0.5).distanceTo(self.position) < 1.8) return;
+  blockEdits.set(key, selectedBlock);
+  rebuildBlockChunk(x, z);
+}
+
+function selectBlock(index: number) {
+  selectedBlock = index === 1 ? 'dirt' : index === 2 ? 'stone' : 'grass';
+  hotbarEl.textContent = `Selected: ${selectedBlock} · [1] grass [2] dirt [3] stone`;
 }
 
 function updateStats() {
@@ -298,11 +380,18 @@ function placeStructure() {
 }
 
 window.addEventListener('keydown', (e) => {
+  if (e.code === 'Digit1') selectBlock(0);
+  if (e.code === 'Digit2') selectBlock(1);
+  if (e.code === 'Digit3') selectBlock(2);
+  if (e.code === 'KeyF') tryAttack();
   if (e.code === 'KeyB') placeStructure();
 });
 window.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && pointerLocked) tryAttack();
+  if (!pointerLocked) return;
+  if (e.button === 0) mineBlock();
+  if (e.button === 2) placeBlock();
 });
+renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
 
 enterBtn.addEventListener('click', () => {
   const role = roleSelect.value as PlayerRole;
@@ -346,6 +435,9 @@ enterBtn.addEventListener('click', () => {
         heightAt = makeHeightFn(worldSeed);
         playerCount = ok.playerCount ?? ok.players.length;
         menu.hidden = true;
+        crosshairEl.hidden = false;
+        hotbarEl.hidden = false;
+        selectBlock(0);
         showInvite(ok.inviteCode || ok.worldSeed);
         for (const p of ok.players) {
           if (p.id !== self.id) syncRemote(p);
@@ -441,14 +533,20 @@ function tick() {
 
     ensureChunksAround(self.position.x, self.position.z);
 
-    const camDist = 7.5;
-    const camHeight = 3.2;
-    camera.position.set(
-      self.position.x + Math.sin(yaw) * camDist,
-      self.position.y + camHeight + Math.sin(pitch) * 2,
-      self.position.z + Math.cos(yaw) * camDist,
-    );
-    camera.lookAt(self.position.x, self.position.y + 1.2, self.position.z);
+    if (pointerLocked) {
+      camera.position.set(self.position.x, self.position.y + 0.55, self.position.z);
+      camera.rotation.order = 'YXZ';
+      camera.rotation.set(pitch, yaw, 0);
+    } else {
+      const camDist = 7.5;
+      const camHeight = 3.2;
+      camera.position.set(
+        self.position.x + Math.sin(yaw) * camDist,
+        self.position.y + camHeight + Math.sin(pitch) * 2,
+        self.position.z + Math.cos(yaw) * camDist,
+      );
+      camera.lookAt(self.position.x, self.position.y + 1.2, self.position.z);
+    }
 
     netAcc += dt;
     if (socket && netAcc > 0.05) {
