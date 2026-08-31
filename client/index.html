@@ -25,6 +25,8 @@
       #invite code { display: block; word-break: break-all; margin: 6px 0; color: #9ec1ff; }
       #invite button { margin-top: 6px; width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid #3a4d75; background: #1c2740; color: #e8eefc; cursor: pointer; }
       #hint { position: absolute; bottom: 12px; left: 12px; font-size: 0.8rem; opacity: 0.85; max-width: 520px; }
+      #crosshair { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; transform: translate(-50%, -50%); color: #fff; font: 700 22px/16px monospace; text-align: center; text-shadow: 0 1px 3px #000; }
+      #hotbar { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); padding: 8px 12px; border: 1px solid #63759a; border-radius: 8px; background: rgba(8,12,24,0.82); color: #f2f5ff; font: 700 0.8rem/1.2 ui-monospace, monospace; }
       canvas { display: block; width: 100%; height: 100%; }
     </style>
   </head>
@@ -60,8 +62,10 @@
         <button id="copy-invite" type="button">Copy invite link</button>
       </div>
       <div id="hint" class="panel" hidden>
-        WASD move · Space jump · B place (builder) · click attack/heal · mouse look after click
+        WASD move · Space jump · left click mine · right click place · 1/2/3 select block · F attack · mouse look after click
       </div>
+      <div id="crosshair" hidden aria-hidden="true">+</div>
+      <div id="hotbar" hidden>Selected: grass · [1] grass [2] dirt [3] stone</div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
