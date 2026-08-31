@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "lanes": [
+    {
+      "name": "typecheck",
+      "paths": ["client/**", "server/**", "shared/**", "package.json", "tsconfig*.json"],
+      "command": ["npm", "run", "typecheck"]
+    },
+    {
+      "name": "tests",
+      "paths": ["server/**", "shared/**", "package.json"],
+      "command": ["npm", "test"]
+    },
+    {
+      "name": "build",
+      "paths": ["client/**", "server/**", "shared/**", "package.json", "tsconfig*.json"],
+      "command": ["npm", "run", "build"]
+    }
+  ]
+}

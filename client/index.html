@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MRPG Realms</title>
+    <style>
+      html, body, #app { margin: 0; height: 100%; background: #0b1020; color: #e8eefc; font-family: ui-sans-serif, system-ui, sans-serif; }
+      #hud { position: fixed; inset: 0; pointer-events: none; }
+      #hud .panel { pointer-events: auto; background: rgba(8,12,24,0.78); border: 1px solid #2a3a5c; border-radius: 10px; padding: 12px 14px; backdrop-filter: blur(6px); }
+      #menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(440px, 92vw); }
+      #menu h1 { margin: 0 0 8px; font-size: 1.4rem; }
+      #menu p { margin: 0 0 12px; opacity: 0.85; font-size: 0.92rem; line-height: 1.35; }
+      #menu label { display: block; font-size: 0.8rem; opacity: 0.8; margin: 8px 0 4px; }
+      #menu input, #menu select, #menu button { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid #3a4d75; background: #121a2e; color: #e8eefc; }
+      #menu .row { display: flex; gap: 8px; }
+      #menu .row input { flex: 1; }
+      #menu .row button { width: auto; margin-top: 0; white-space: nowrap; }
+      #menu button { margin-top: 12px; cursor: pointer; background: linear-gradient(180deg, #3d6df0, #2a4ec0); border: none; font-weight: 600; }
+      #menu button.secondary { background: #1c2740; border: 1px solid #3a4d75; }
+      #menu button:hover { filter: brightness(1.08); }
+      #menu .hint { font-size: 0.78rem; opacity: 0.75; margin-top: 8px; }
+      #stats { position: absolute; top: 12px; left: 12px; font-size: 0.85rem; line-height: 1.4; min-width: 240px; }
+      #invite { position: absolute; top: 12px; right: 12px; font-size: 0.8rem; max-width: min(360px, 46vw); }
+      #invite code { display: block; word-break: break-all; margin: 6px 0; color: #9ec1ff; }
+      #invite button { margin-top: 6px; width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid #3a4d75; background: #1c2740; color: #e8eefc; cursor: pointer; }
+      #hint { position: absolute; bottom: 12px; left: 12px; font-size: 0.8rem; opacity: 0.85; max-width: 520px; }
+      canvas { display: block; width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="hud">
+      <div id="menu" class="panel">
+        <h1>MRPG Realms</h1>
+        <p>Multiplayer hybrid: combat classes or builder. Share a <strong>world seed</strong> so friends load the same terrain and join your room.</p>
+        <label for="name">Name</label>
+        <input id="name" maxlength="24" value="Wanderer" />
+        <label for="role">Role</label>
+        <select id="role">
+          <option value="warrior">Warrior — durable melee</option>
+          <option value="ranger">Ranger — ranged bow</option>
+          <option value="mage">Mage — long-range bolts</option>
+          <option value="healer">Healer — support pulse</option>
+          <option value="builder">Builder — place persistent structures</option>
+        </select>
+        <label for="seed">World seed (invite code)</label>
+        <div class="row">
+          <input id="seed" maxlength="48" placeholder="leave blank for random" autocomplete="off" />
+          <button id="roll-seed" class="secondary" type="button">Random</button>
+        </div>
+        <p class="hint">Friends open the same seed (or your invite link) to play together in that realm.</p>
+        <button id="enter" type="button">Enter Realm</button>
+      </div>
+      <div id="stats" class="panel" hidden></div>
+      <div id="invite" class="panel" hidden>
+        <strong>Invite friends</strong>
+        <div>Seed: <code id="invite-seed"></code></div>
+        <code id="invite-link"></code>
+        <button id="copy-invite" type="button">Copy invite link</button>
+      </div>
+      <div id="hint" class="panel" hidden>
+        WASD move · Space jump · B place (builder) · click attack/heal · mouse look after click
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

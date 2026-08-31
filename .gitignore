@@ -1,1 +1,14 @@
+node_modules/
+dist/
+client/dist/
+server/dist/
 .env
+*.log
+.DS_Store
+.playwright-mcp/
+resource-sentinel.db
+.agent-manifest.json
+.agent-status.md
+.agent-session.json
+.worktrees/
+.tmp/

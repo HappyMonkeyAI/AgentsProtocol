@@ -1,22 +1,15 @@
-# Patterns and Lessons
+# Patterns and lessons — MRPG Realms
 
-## [Success] Protocol Initialization
-- **Date:** 2026-02-25
-- **Pattern:** Created `AGENTS.md` and initialized `.agent/memories/` to solidify a high-velocity development protocol.
-- **Lesson:** Defining "Agents Protocol" principles early reduces friction for future AI-driven tasks.
+## Success
 
-## [Failure] Placeholder
-- **Date:** YYYY-MM-DD
-- **Pattern:** Describe what went wrong.
-- **Lesson:** Describe the takeaway.
-12: 
-13: ## [Success] Git Divergence Resolution
-14: - **Date:** 2026-03-31
-15: - **Pattern:** When facing divergent branches (local and remote), moved local work to a new target branch (`hermes-antigravity-sync`) and rebased local `main` on `origin/main`.
-16: - **Lesson:** This "Pivot and Rebase" approach avoids merge commits on `main` while safely publishing the latest changes to the remote for review.
+- Reuse **seed + chunk streaming** from GatherRealms/MRPG rather than inventing a new world model.
+- Keep Phaser games online; evolve in a new Three.js repo.
+- Server authority for combat/build mirrors EchoesOfAion discipline.
+- Heightfield MVP before voxels avoids meshing complexity.
 
+## Failure risks (pre-mortem)
 
-## [Success] Protocol V2 Upgrade (pi-mono integration)
-- **Date: 2026-04-27**
-- **Pattern:** Integrated **Steering Awareness**, **Iterative Synthesis**, and **Batch Momentum** patterns from the `pi-mono` toolkit into `AGENTS.md` and system prompts.
-- **Lesson:** Adopting mature agent-loop primitives (like mid-turn steering and iterative context updates) drastically reduces "Drag" and context drift in long-running coding sessions.
+- Trying to port full Phaser scene graphs → thrash. Port systems instead.
+- Absolute world coordinates without floating origin → GPU shimmer at distance.
+- Syncing all players globally → bandwidth wall; need AOI early when >~20 players.
+- Copying node_modules from Documents/www trees → disk waste and broken paths.

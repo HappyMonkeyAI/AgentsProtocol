@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "project": "MRPG Realms",
+  "coordinationMode": "branch-worktree",
+  "integrationBranch": "feature/agent-worktree-infrastructure",
+  "baseline": {
+    "status": "dirty-parent-requires-checkpoint",
+    "head": "e1706fdfe54ea89399800671543ed950848f864e",
+    "note": "Existing scaffold changes and untracked product files predate this coordination slice. Do not create child worktrees until their ownership is explicitly checkpointed."
+  },
+  "tasks": [
+    {
+      "id": "foundations-docs",
+      "title": "Adopt branch/worktree coordination infrastructure",
+      "status": "complete",
+      "baseRef": "HEAD",
+      "ownedPaths": [
+        "AGENTS.md",
+        "CONTEXT.md",
+        "HERMES.md",
+        ".gitignore",
+        ".agent-tasks.json",
+        "scripts/check_changed.py",
+        "scripts/checks.json",
+        "scripts/test_check_changed.py",
+        "docs/adr/0002-agent-worktree-coordination.md"
+      ],
+      "protectedPaths": [
+        "client/",
+        "server/",
+        "shared/",
+        ".env",
+        ".agent/memories/"
+      ],
+      "verification": [
+        "python3 -m unittest scripts.test_check_changed -v",
+        "python3 scripts/check_changed.py --base <baseRef> --owned <declared-owned-globs>",
+        "python3 scripts/check_changed.py --base HEAD",
+        "npm run typecheck",
+        "npm test",
+        "npm run build",
+        "git diff --check"
+      ],
+      "implementer": "hermes",
+      "reviewer": "parent-hermes"
+    },
+    {
+      "id": "visual-material-slice",
+      "title": "Evaluate and implement stylized Three.js material pass",
+      "status": "pending",
+      "baseRef": "PENDING-CLEAN-CHECKPOINT",
+      "dependsOn": ["foundations-docs"],
+      "ownedPaths": ["client/src/", "docs/plans/", "docs/adr/"],
+      "protectedPaths": ["shared/protocol.ts", "server/src/"],
+      "verification": ["npm run typecheck", "npm test", "npm run build", "browser acceptance"]
+    },
+    {
+      "id": "asset-integration-slice",
+      "title": "Integrate the reviewed crate/prop factory behind a reversible asset boundary",
+      "status": "pending",
+      "baseRef": "PENDING-CLEAN-CHECKPOINT",
+      "dependsOn": ["foundations-docs", "visual-material-slice"],
+      "ownedPaths": ["client/src/assets/", "client/src/", "docs/adr/"],
+      "protectedPaths": ["shared/protocol.ts", "server/src/"],
+      "verification": ["npm run typecheck", "npm test", "npm run build", "browser acceptance"]
+    }
+  ]
+}

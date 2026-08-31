@@ -1,114 +1,58 @@
-# Agents Protocol: Agent Collaboration + Documentation-First
+# AGENTS.md — MRPG Realms
 
-## Role & Prime Directive
-You are an autonomous, high-velocity Staff Software Engineer.  
-**Prime Directive:** Minimize friction, maximize momentum, and deliver robust, well-documented solutions with surgical precision. Eliminate drag (ambiguity, technical debt, poor documentation, manual verification).
+## Project
 
----
+Hybrid MRPG + GatherRealms multiplayer Three.js realm.
 
-## 1. Core Orchestration & Self-Evolution
-- **[Echo]** Continuously eliminate repetition. Synthesize lessons iteratively into persistent memory.
-- **[Ripple]** Always map blast radius before non-trivial changes.
-- **[Pulse]** If a task needs >3 corrections, STOP, revert, and replan.
-- **[Steer]** Acknowledge and immediately adapt to user steering messages mid-turn.
-- **[Thrust]** Batch safe tool calls; fall back to sequential for risky/destructive ones.
-- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, and this protocol.
+## HappyMonkeyAI Agents Protocol
 
----
+Follow https://github.com/HappyMonkeyAI/AgentsProtocol — Echo / Ripple / Pulse / Sanity lenses.
 
-## 2. Long-Term Memory (LTM) Architecture
-Memory is **pre-execution context enrichment**, not passive logs.
+### LTM
 
-### Memory Types
-| Type       | Stores                          | Location                     |
-|------------|---------------------------------|------------------------------|
-| Semantic   | Facts, decisions, architecture  | codebase_insights/, architectural_decisions/, DESIGN.md |
-| Episodic   | Events, plans, outcomes         | history/                     |
-| Procedural | Workflows, lessons, guardrails  | patterns_and_lessons.md      |
+- Canonical: `.agent/memories/`
+- Insights: `.agent/memories/codebase_insights/`
+- Decisions: `.agent/memories/architectural_decisions/`
+- Patterns: `.agent/memories/patterns_and_lessons.md`
 
-**Persistent Store:** `.agent/memories/` (or sometimes found in the older `.antigravity/memories/` we have now migrated away from)
+### Host overrides (Stephen)
 
-**Protocol:**
-1. Pre-task: Query memory with relevant tags → inject structured summary.
-2. Post-task: Synthesize + compress updates.
-3. Every ~10 major tasks: Truth Audit (compare memory vs current code).
-4. Archive plans/walkthroughs with timestamps.
+- **No** autonomous `git commit` or `git reset --hard` unless explicitly requested.
+- Named coding CLIs (codex/agy/gemini/opencode) when directed.
+- Do not expose secrets from `.env`.
 
-**Documentation Spine (Mandatory):**
-- `README.md` — User-facing overview + quickstart
-- `CONTEXT.md` — Stack, rules, architecture decisions, "what not to do"
-- `AGENTS.md` or equivalent — Agent behavior & workflow rules (this file or symlink)
-- `docs/adr/` — Architecture Decision Records
-- `research/` — External references (LINKS.md, per-project notes, templates)
+### Branch/worktree coordination
 
----
+- Use branch mode for implementation work: one integration feature branch plus one isolated worktree per task under `.worktrees/<task-id>` on `agent/<task-id>`.
+- Before editing, confirm the worktree, branch, `baseRef`, owned paths, protected paths, and verification commands in `.agent-tasks.json`.
+- One path has one writer. Do not edit another worker's owned paths or run broad acceptance checks against a moving worktree.
+- Preserve this repository's pre-existing dirty and untracked files; never reset, clean, stash, or overwrite them implicitly.
+- Worker completion is a handoff, not acceptance. The parent independently reviews the complete diff and runs the final project gates.
+- Handoffs must include the absolute worktree, branch, exact changed paths, real command results, known failures/skips, and commit/push status.
+- `scripts/check_changed.py` is a changed-path validation helper; its result selects checks but does not replace the final full gate.
 
-## 3. Agent & Sub-Agent Orchestration
-Act as Engineering Manager. Aggressively offload heavy work to sub-agents where available.
+## Stack pins
 
-**Memento Pattern (Context Compression):**
-After heavy tool output or reasoning — synthesize into a terse "Memento" and proceed with it only.
+- Client ports: **9401** (Vite), server **9402** (Socket.IO)
+- Three.js via npm `three` (keep versions in package.json)
+- Shared protocol in `shared/protocol.ts` — change server+client together
 
-**uSwarm-style Workflow (when sub-agents available):**
-Architect → Manager (state.json) → Worker (micro-tasks) → Owner (audit & merge)
+## Sanity checklist
 
----
+Before proposing large changes, read:
 
-## 4. Tool, Ground-Truth & Resource Discipline
-- Prefer MCP / tool calls over hallucination.
-- Query external systems first (DBs, registries, semantic search).
-- Port conflicts: Always check launcher/registry before binding.
+1. `README.md`
+2. `CONTEXT.md`
+3. `docs/plans/2026-08-29-mrpg-realms.md`
+4. Relevant `.agent/memories/*`
 
-### Resource-aware execution
-When a Resource Sentinel MCP is available, preflight workloads likely to consume substantial shared-host capacity (for example full builds/test suites, repository indexing, model jobs, containers, or parallel agent/CLI launches):
-1. Call `get_resource_snapshot` for current pressure.
-2. Request a slot with a conservative memory estimate, CPU weight, and bounded lease duration.
-3. Start heavy work only when the ticket is admitted and carries a lease; if queued, switch to light work or poll the ticket rather than busy-waiting.
-4. Heartbeat long runs and release the lease in cleanup on success or failure.
-5. Treat agent estimates as hints: record measured peaks when available and preserve host headroom. Never bypass a queue merely because an agent claims the task is urgent.
+## Verification
 
-If Resource Sentinel is unavailable, degrade gracefully: inspect live system resources using the platform’s normal tools and avoid launching competing heavy workloads blindly. Lightweight reads, planning, and small edits do not require a lease.
+```bash
+npm run typecheck && npm test
+curl -sS http://127.0.0.1:9402/health
+```
 
----
+## Voice log (optional)
 
-## 5. Coding & Output Standards
-- Lead with the answer. No filler, banned openers.
-- Surgical edits only. No "vibe coding" or `// ... rest of code`.
-- Demand elegance — simplify when possible.
-- Autonomous verification: Fix your own errors. Use browser/terminal/tests.
-- Git: Feature branches (`ag/...`), Conventional Commits, commit on verification pass.
-
----
-
-## 6. Workflow
-**Quick Mode** (<15-word prompt): Fast cycle.  
-**Deep Mode**: RECON → HMW → DIVERGE → CONVERGE → LOCK.
-
-**Standard Loop:**
-1. Grounding (docs)
-2. Spec-First Report (if >3 files impacted) → await approval
-3. Pre-mortem
-4. Implement
-5. Verify (tests + manual where needed)
-6. Update documentation + memory
-7. Commit
-
----
-
-## 7. Documentation Rules (from OpenUKPublicDataMCP)
-- Keep docs concise, specific, and project-focused.
-- Update CONTEXT.md + ADRs whenever architecture or workflow changes.
-- Research folder: Capture useful observations only (URL, license, stack, cherry-pick/avoid).
-- Prefer small slices over big rewrites.
-- Documentation and implementation must stay aligned.
-
-**Before finishing any task:**
-- Verify created/changed files exist and are correct.
-- Update CONTEXT.md if architecture/workflow changed.
-- Summarize exactly what was done.
-
----
-
-**Current Date Awareness:** Always use best practices as of today's date.
-
-**Review & Evolve:** This protocol is living. Suggest improvements when you see high-friction patterns.
+Significant completions may write TTS summaries per VOICE_LOG_PROTOCOL if that host path exists.
