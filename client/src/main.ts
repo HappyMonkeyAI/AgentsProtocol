@@ -12,6 +12,7 @@ import {
 } from '../../shared/protocol';
 import { makeHeightFn, heightToBiome, biomeColor, isWalkable } from '../../shared/noiseWorld';
 import { createStylizedMaterial } from './stylizedMaterials';
+import { createChestModel, createPlayerModel } from './assets/factories';
 
 const app = document.getElementById('app')!;
 const menu = document.getElementById('menu')!;
@@ -109,6 +110,7 @@ const playersGroup = new THREE.Group();
 scene.add(playersGroup);
 const structuresGroup = new THREE.Group();
 scene.add(structuresGroup);
+let starterChest: THREE.Group | null = null;
 
 const remoteMeshes = new Map<string, THREE.Object3D>();
 const structureMeshes = new Map<string, THREE.Object3D>();
@@ -199,23 +201,16 @@ document.addEventListener('mousemove', (e) => {
 });
 
 function makePlayerMesh(p: PlayerState): THREE.Object3D {
-  const g = new THREE.Group();
-  const body = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.35, 0.7, 4, 8),
-    createStylizedMaterial(p.color),
-  );
-  body.castShadow = true;
-  body.position.y = 0.9;
-  g.add(body);
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.28, 12, 12),
-    createStylizedMaterial(0xffe0bd),
-  );
-  head.position.y = 1.7;
-  head.castShadow = true;
-  g.add(head);
+  const g = createPlayerModel(p.role, p.color).group;
   g.userData.playerId = p.id;
   return g;
+}
+
+function showStarterChest(p: PlayerState) {
+  if (starterChest) worldRoot.remove(starterChest);
+  starterChest = createChestModel().group;
+  starterChest.position.set(p.position.x + 2, groundHeight(p.position.x + 2, p.position.z), p.position.z);
+  worldRoot.add(starterChest);
 }
 
 function makeStructureMesh(s: StructureState): THREE.Object3D {
@@ -496,6 +491,7 @@ enterBtn.addEventListener('click', () => {
           structuresGroup.add(m);
         }
         ensureChunksAround(self.position.x, self.position.z);
+        showStarterChest(self);
         updateStats();
       },
     );
