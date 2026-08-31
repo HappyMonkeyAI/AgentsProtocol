@@ -4,9 +4,9 @@
   "coordinationMode": "branch-worktree",
   "integrationBranch": "feature/agent-worktree-infrastructure",
   "baseline": {
-    "status": "dirty-parent-requires-checkpoint",
-    "head": "e1706fdfe54ea89399800671543ed950848f864e",
-    "note": "Existing scaffold changes and untracked product files predate this coordination slice. Do not create child worktrees until their ownership is explicitly checkpointed."
+    "status": "checkpointed",
+    "head": "4d2a64b",
+    "note": "The scaffold and first visual slice are checkpointed on the integration branch. New child worktrees must use the current integration commit as their exact baseRef."
   },
   "tasks": [
     {
@@ -47,18 +47,20 @@
     {
       "id": "visual-material-slice",
       "title": "Evaluate and implement stylized Three.js material pass",
-      "status": "pending",
-      "baseRef": "PENDING-CLEAN-CHECKPOINT",
+      "status": "complete",
+      "baseRef": "4d2a64b",
       "dependsOn": ["foundations-docs"],
       "ownedPaths": ["client/src/", "docs/plans/", "docs/adr/"],
       "protectedPaths": ["shared/protocol.ts", "server/src/"],
-      "verification": ["npm run typecheck", "npm test", "npm run build", "browser acceptance"]
+      "verification": ["npm run typecheck", "npm test", "npm run build", "browser acceptance"],
+      "implementer": "hermes-fallback",
+      "reviewer": "parent-hermes"
     },
     {
       "id": "asset-integration-slice",
       "title": "Integrate the reviewed crate/prop factory behind a reversible asset boundary",
       "status": "pending",
-      "baseRef": "PENDING-CLEAN-CHECKPOINT",
+      "baseRef": "4d2a64b",
       "dependsOn": ["foundations-docs", "visual-material-slice"],
       "ownedPaths": ["client/src/assets/", "client/src/", "docs/adr/"],
       "protectedPaths": ["shared/protocol.ts", "server/src/"],
