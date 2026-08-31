@@ -11,6 +11,7 @@ import {
   randomWorldSeed,
 } from '../../shared/protocol';
 import { makeHeightFn, heightToBiome, biomeColor, isWalkable } from '../../shared/noiseWorld';
+import { createStylizedMaterial } from './stylizedMaterials';
 
 const app = document.getElementById('app')!;
 const menu = document.getElementById('menu')!;
@@ -135,14 +136,14 @@ function makePlayerMesh(p: PlayerState): THREE.Object3D {
   const g = new THREE.Group();
   const body = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.35, 0.7, 4, 8),
-    new THREE.MeshStandardMaterial({ color: p.color, roughness: 0.65 }),
+    createStylizedMaterial(p.color),
   );
   body.castShadow = true;
   body.position.y = 0.9;
   g.add(body);
   const head = new THREE.Mesh(
     new THREE.SphereGeometry(0.28, 12, 12),
-    new THREE.MeshStandardMaterial({ color: 0xffe0bd }),
+    createStylizedMaterial(0xffe0bd),
   );
   head.position.y = 1.7;
   head.castShadow = true;
@@ -162,7 +163,7 @@ function makeStructureMesh(s: StructureState): THREE.Object3D {
     s.kind === 'tower' ? new THREE.CylinderGeometry(0.6, 0.8, 3.2, 8) :
     s.kind === 'hut' ? new THREE.ConeGeometry(1.4, 2.2, 5) :
     new THREE.CylinderGeometry(0.35, 0.55, 0.6, 8),
-    new THREE.MeshStandardMaterial({ color, roughness: 0.8 }),
+    createStylizedMaterial(color),
   );
   mesh.castShadow = true;
   mesh.receiveShadow = true;
@@ -208,7 +209,7 @@ function buildChunk(cx: number, cz: number) {
   geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   geo.setIndex(indices);
   geo.computeVertexNormals();
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, metalness: 0.02 });
+  const mat = createStylizedMaterial(0xffffff, { vertexColors: true });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true;
   mesh.userData.chunk = key;
