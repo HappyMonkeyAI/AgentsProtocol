@@ -162,7 +162,7 @@ function runConsoleCommand(raw: string) {
   const command = raw.trim().toLowerCase();
   if (command === '/creative') {
     creativeMode = true;
-    consoleOutput.textContent = 'creative mode enabled · fly with WASD + Space/Ctrl';
+    consoleOutput.textContent = 'creative mode enabled · fly with WASD + Space/E up, Q/Ctrl down';
   } else if (command === '/survival') {
     creativeMode = false;
     consoleOutput.textContent = 'survival mode enabled';
@@ -173,6 +173,7 @@ function runConsoleCommand(raw: string) {
 }
 
 window.addEventListener('keydown', (e) => {
+  if (creativeMode && e.code === 'KeyW' && e.ctrlKey) e.preventDefault();
   if (e.code === 'Backquote') {
     e.preventDefault();
     setConsole(!consoleOpen);
@@ -387,6 +388,13 @@ function groundHeight(x: number, z: number) {
     if (ex === bx && ez === bz) highest = Math.max(highest, ey);
   }
   return (highest + 1) * BLOCK_SIZE;
+}
+
+function isSolidBlockAt(bx: number, by: number, bz: number) {
+  const override = blockEdits.get(blockKey(bx, by, bz));
+  if (override) return override !== 'removed';
+  const baseTop = Math.floor(heightAt(bx * BLOCK_SIZE, bz * BLOCK_SIZE) / BLOCK_SIZE);
+  return by >= MIN_BLOCK_Y && by <= baseTop;
 }
 
 function targetBlock() {
@@ -616,17 +624,19 @@ function tick() {
         self.position.z -= velocity.z;
       }
 
-      const targetY = groundHeight(self.position.x, self.position.z) + 1.0;
       if (keys.has('Space') && grounded) {
         verticalV = 7.5;
         grounded = false;
       }
       verticalV -= 18 * dt;
       self.position.y += verticalV * dt;
-      if (self.position.y <= targetY) {
-        self.position.y = targetY;
+      const feetBlockY = Math.floor((self.position.y - 1.01) / BLOCK_SIZE);
+      const feetBlockX = Math.floor(self.position.x / BLOCK_SIZE);
+      const feetBlockZ = Math.floor(self.position.z / BLOCK_SIZE);
+      grounded = verticalV <= 0 && isSolidBlockAt(feetBlockX, feetBlockY, feetBlockZ);
+      if (grounded) {
+        self.position.y = (feetBlockY + 1) * BLOCK_SIZE + 1;
         verticalV = 0;
-        grounded = true;
       }
     }
     self.yaw = yaw;
