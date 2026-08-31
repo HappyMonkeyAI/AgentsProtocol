@@ -27,6 +27,9 @@
       #hint { position: absolute; bottom: 12px; left: 12px; font-size: 0.8rem; opacity: 0.85; max-width: 520px; }
       #crosshair { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; transform: translate(-50%, -50%); color: #fff; font: 700 22px/16px monospace; text-align: center; text-shadow: 0 1px 3px #000; }
       #hotbar { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); padding: 8px 12px; border: 1px solid #63759a; border-radius: 8px; background: rgba(8,12,24,0.82); color: #f2f5ff; font: 700 0.8rem/1.2 ui-monospace, monospace; }
+      #console { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: min(640px, 90vw); }
+      #console-output { min-height: 1.1em; color: #9ec1ff; font: 0.8rem/1.3 ui-monospace, monospace; }
+      #console-input { width: 100%; box-sizing: border-box; margin-top: 8px; padding: 9px 10px; border: 1px solid #5877b5; border-radius: 6px; background: #080c18; color: #fff; font: 0.9rem ui-monospace, monospace; outline: none; }
       canvas { display: block; width: 100%; height: 100%; }
     </style>
   </head>
@@ -62,10 +65,14 @@
         <button id="copy-invite" type="button">Copy invite link</button>
       </div>
       <div id="hint" class="panel" hidden>
-        WASD move · Space jump · left click mine · right click place · 1/2/3 select block · F attack · mouse look after click
+        WASD move · Shift sprint · Space jump · left click mine · right click place · 1/2/3 select block · F attack · ` console
       </div>
       <div id="crosshair" hidden aria-hidden="true">+</div>
       <div id="hotbar" hidden>Selected: grass · [1] grass [2] dirt [3] stone</div>
+      <div id="console" class="panel" hidden>
+        <div id="console-output">commands: /creative, /survival</div>
+        <input id="console-input" autocomplete="off" spellcheck="false" aria-label="Console command" placeholder="Type a command, e.g. /creative" />
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

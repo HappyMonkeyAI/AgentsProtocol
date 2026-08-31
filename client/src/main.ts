@@ -19,6 +19,9 @@ const statsEl = document.getElementById('stats')!;
 const hintEl = document.getElementById('hint')!;
 const crosshairEl = document.getElementById('crosshair')!;
 const hotbarEl = document.getElementById('hotbar')!;
+const consoleEl = document.getElementById('console')!;
+const consoleInput = document.getElementById('console-input') as HTMLInputElement;
+const consoleOutput = document.getElementById('console-output')!;
 const invitePanel = document.getElementById('invite')!;
 const inviteSeedEl = document.getElementById('invite-seed')!;
 const inviteLinkEl = document.getElementById('invite-link')!;
@@ -114,6 +117,8 @@ const blockEdits = new Map<string, 'removed' | 'grass' | 'dirt' | 'stone'>();
 const raycaster = new THREE.Raycaster();
 const screenCenter = new THREE.Vector2(0, 0);
 let selectedBlock: 'grass' | 'dirt' | 'stone' = 'grass';
+let creativeMode = false;
+let consoleOpen = false;
 
 const keys = new Set<string>();
 let pointerLocked = false;
@@ -136,8 +141,50 @@ function blockColor(kind: 'grass' | 'dirt' | 'stone', topBiome: ReturnType<typeo
   return 0x8d6e53;
 }
 
-window.addEventListener('keydown', (e) => keys.add(e.code));
+function setConsole(open: boolean) {
+  consoleOpen = open;
+  consoleEl.hidden = !open;
+  if (open) {
+    document.exitPointerLock();
+    consoleInput.value = '';
+    consoleInput.focus();
+  } else if (self) {
+    renderer.domElement.focus();
+  }
+}
+
+function runConsoleCommand(raw: string) {
+  const command = raw.trim().toLowerCase();
+  if (command === '/creative') {
+    creativeMode = true;
+    consoleOutput.textContent = 'creative mode enabled · fly with WASD + Space/Ctrl';
+  } else if (command === '/survival') {
+    creativeMode = false;
+    consoleOutput.textContent = 'survival mode enabled';
+  } else if (command) {
+    consoleOutput.textContent = `unknown command: ${command}`;
+  }
+  updateStats();
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Backquote') {
+    e.preventDefault();
+    setConsole(!consoleOpen);
+    return;
+  }
+  if (!consoleOpen) keys.add(e.code);
+});
 window.addEventListener('keyup', (e) => keys.delete(e.code));
+consoleInput.addEventListener('keydown', (e) => {
+  e.stopPropagation();
+  if (e.key === 'Enter') {
+    runConsoleCommand(consoleInput.value);
+    consoleInput.value = '';
+  } else if (e.key === 'Escape') {
+    setConsole(false);
+  }
+});
 renderer.domElement.addEventListener('click', () => {
   renderer.domElement.requestPointerLock();
 });
@@ -148,7 +195,7 @@ document.addEventListener('mousemove', (e) => {
   if (!pointerLocked) return;
   yaw -= e.movementX * 0.0022;
   pitch -= e.movementY * 0.0022;
-  pitch = Math.max(-1.2, Math.min(0.35, pitch));
+  pitch = Math.max(-1.45, Math.min(1.45, pitch));
 });
 
 function makePlayerMesh(p: PlayerState): THREE.Object3D {
@@ -220,7 +267,7 @@ function buildChunk(cx: number, cz: number) {
 
   const mesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(tile, tile, tile),
-    createStylizedMaterial(0xffffff, { vertexColors: true }),
+    createStylizedMaterial(0xffffff),
     size * size * (Math.ceil(20 / tile) + 1),
   );
   const transform = new THREE.Object3D();
@@ -355,6 +402,7 @@ function updateStats() {
     `pos ${self.position.x.toFixed(1)}, ${self.position.z.toFixed(1)}`,
     `chunks ${chunkMeshes.size} · players ${playerCount} (peers ${remoteMeshes.size})`,
     `seed <code>${worldSeed}</code>`,
+    `mode ${creativeMode ? 'creative · fly' : 'survival'}`,
   ].join('<br/>');
 }
 
@@ -505,29 +553,41 @@ function tick() {
     if (keys.has('KeyS')) velocity.sub(forward);
     if (keys.has('KeyD')) velocity.add(right);
     if (keys.has('KeyA')) velocity.sub(right);
-    if (velocity.lengthSq() > 0) velocity.normalize().multiplyScalar(stats.speed * dt);
+    const sprinting = keys.has('ShiftLeft') || keys.has('ShiftRight');
+    const moveSpeed = creativeMode ? (sprinting ? 24 : 14) : stats.speed * (sprinting ? 1.65 : 1);
+    if (velocity.lengthSq() > 0) velocity.normalize().multiplyScalar(moveSpeed * dt);
 
-    self.position.x += velocity.x;
-    self.position.z += velocity.z;
-
-    const gh = groundHeight(self.position.x, self.position.z);
-    const biome = heightToBiome(gh);
-    if (!isWalkable(biome)) {
-      self.position.x -= velocity.x;
-      self.position.z -= velocity.z;
-    }
-
-    const targetY = groundHeight(self.position.x, self.position.z) + 1.0;
-    if (keys.has('Space') && grounded) {
-      verticalV = 7.5;
-      grounded = false;
-    }
-    verticalV -= 18 * dt;
-    self.position.y += verticalV * dt;
-    if (self.position.y <= targetY) {
-      self.position.y = targetY;
+    if (creativeMode) {
+      velocity.y = (keys.has('Space') ? 1 : 0) - (keys.has('ControlLeft') || keys.has('ControlRight') ? 1 : 0);
+      if (velocity.y !== 0) velocity.y *= moveSpeed * dt;
+      self.position.x += velocity.x;
+      self.position.y += velocity.y;
+      self.position.z += velocity.z;
       verticalV = 0;
-      grounded = true;
+      grounded = false;
+    } else {
+      self.position.x += velocity.x;
+      self.position.z += velocity.z;
+
+      const gh = groundHeight(self.position.x, self.position.z);
+      const biome = heightToBiome(gh);
+      if (!isWalkable(biome)) {
+        self.position.x -= velocity.x;
+        self.position.z -= velocity.z;
+      }
+
+      const targetY = groundHeight(self.position.x, self.position.z) + 1.0;
+      if (keys.has('Space') && grounded) {
+        verticalV = 7.5;
+        grounded = false;
+      }
+      verticalV -= 18 * dt;
+      self.position.y += verticalV * dt;
+      if (self.position.y <= targetY) {
+        self.position.y = targetY;
+        verticalV = 0;
+        grounded = true;
+      }
     }
     self.yaw = yaw;
 
