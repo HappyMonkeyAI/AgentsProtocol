@@ -97,17 +97,32 @@ curl -sS http://127.0.0.1:9402/api/invite/forest-01
 
 ---
 
-## Phase 4 — Assets pipeline
+## Phase 4 — Authored asset integration
 
-**Objective:** Wire sprite packs + img2threejs path.
+**Objective:** Replace prototype primitives with reviewed, rights-cleared assets without coupling rendering to gameplay state.
 
 **Steps:**
-1. Document inventory of `.215:~/Documents/www/Realms/public/assets` and MRPG class sprites.
-2. Billboard characters (three.js Sprite) using cleaned sprites from `tools/sprites`.
-3. Pick 3 landmark props for img2threejs (campfire, wooden wall, watchtower).
-4. Store factories under `client/src/assets/factories/`.
+1. Document the investigated asset inventory and provenance for the chest, player models, swords, and landmark props.
+2. Add a reviewed chest factory and wire it to the voxel/build loop behind an explicit asset ID, with a primitive fallback.
+3. Add player model factories with role-aware selection for Warrior/Ranger/Mage/Healer/Builder; preserve server-owned position, yaw, HP, visibility, and animation lifecycle.
+4. Add sword/melee weapon models to the Warrior presentation and combat animation path; the model must not determine hit legality or damage.
+5. Add deterministic authored landscape dressing: low-poly trees, grass tufts, and later flowers/rocks, seeded per chunk and removed/rebuilt with chunk lifecycle.
+6. Keep terrain collision coupled to the edited voxel column so mining support blocks lowers the resolved surface and gravity settles the player onto the next solid block.
+7. Pick 3 landmark props for the img2threejs/procedural path (campfire, wooden wall, watchtower) and keep generated geometry out of the runtime dependency graph.
+8. Store factories under `client/src/assets/` with a manifest containing asset ID, source, licence/provenance, fallback, and review status.
 
 **References:** three.js billboards manual; img2threejs skill; spritemaker on .215.
+
+**Acceptance gates:**
+
+- Chest, player, and sword assets render in the real browser with no console/page errors.
+- Every asset has a rights/provenance note and a primitive fallback.
+- Asset loading failure leaves gameplay usable and does not silently replace a role with the wrong model.
+- Player models remain driven by authoritative `PlayerState`; assets cannot mutate combat or movement rules.
+- Sword presentation is verified separately from server-authoritative combat outcomes.
+- Trees/grass are visible in a fresh browser join and do not participate in voxel targeting.
+- Mining a supporting block lowers the walkable surface and causes the player to fall/settle rather than hover.
+- `npm run typecheck`, `npm test`, `npm run build`, `git diff --check`, and browser acceptance pass; dedicated tunnel-mining and creative shortcut coverage remains a follow-up until exercised in a stable browser harness.
 
 ---
 

@@ -4,7 +4,8 @@
 
 1. Read `CONTEXT.md`, `AGENTS.md`, active plan under `docs/plans/`.
 2. Prefer surgical edits; keep shared protocol types in `shared/`.
-3. Ports 9401/9402 are reserved for this project on .215.
+- Ports 9401/9402 are reserved for this project on .215.
+- Use `./start.sh` and `./stop.sh` for the managed local dev stack; they keep runtime state under ignored `.tmp/`.
 
 ## Verify after changes
 

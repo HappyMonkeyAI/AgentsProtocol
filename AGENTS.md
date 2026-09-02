@@ -46,6 +46,8 @@ Before proposing large changes, read:
 3. `docs/plans/2026-08-29-mrpg-realms.md`
 4. Relevant `.agent/memories/*`
 
+After a substantial slice ships, append a factual entry to `PROGRESS.md` and update `docs/TESTING.md` when the primary browser interaction changes. Keep code/tests authoritative over progress prose.
+
 ## Verification
 
 ```bash

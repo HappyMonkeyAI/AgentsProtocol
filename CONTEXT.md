@@ -11,6 +11,7 @@ Browser multiplayer hybrid of MRPG (class combat) and GatherRealms (persistent b
 3. Product plan: `docs/plans/2026-08-29-mrpg-realms.md`
 4. Research (reference only): `docs/research/`
 5. Agent protocol: `AGENTS.md`, `.agent/memories/`
+6. Slice history and browser acceptance: `PROGRESS.md`, `docs/TESTING.md`
 
 When docs conflict with code/tests, code wins; update docs in the same change.
 
@@ -27,8 +28,11 @@ When docs conflict with code/tests, code wins; update docs in the same change.
 - Server is authoritative for HP, death/respawn, structure placement eligibility.
 - Deterministic world seed shared by client and server height functions.
 - Multiplayer isolation by seed room (`world:<seed>`); no cross-world bleed.
-- Chunk stream + unload; never keep unbounded terrain meshes.
+- Chunk stream + unload; never keep unbounded terrain meshes. Seeded landscape groups follow the same lifecycle.
+- Edited voxel columns affect support collision; survival movement uses the solid block beneath the player rather than the highest surface.
 - Builder-only placement; combat roles cannot place structures (MVP).
+- Voice transcripts are sent through the server-owned voice event, broadcast as bounded room chat, and may be spoken by recipients only when local incoming-voice/browser-TTS settings allow it; the sender's own message is not replayed.
+- Voice-originated slash commands are never executed automatically.
 - No secrets in repo; no autonomous hard resets.
 - Prefer reusing GatherRealms/MRPG **game rules and assets**, not Phaser rendering.
 
@@ -41,7 +45,7 @@ Browser (Three.js)  --socket.io-->  Node server (RoomRegistry)
    | copy invite URL                   | combat/build scoped to room
 ```
 
-Later: persistent structure store (SQLite/Postgres), AOI interest management, floating origin, instanced foliage, img2threejs props.
+Later: persistent structure store (SQLite/Postgres), AOI interest management, floating origin, instanced foliage, img2threejs props, server-authoritative movement validation.
 
 ## What not to do
 

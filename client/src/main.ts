@@ -5,15 +5,23 @@ import {
   PlayerRole,
   PlayerState,
   StructureState,
+  CombatEffect,
   ROLE_STATS,
   WORLD,
   normalizeWorldSeed,
   randomWorldSeed,
 } from '../../shared/protocol';
+import { getHelpText, parseSlashCommand } from '../../shared/commands';
+import { resolveSocketUrl } from '../../shared/socket';
 import { makeHeightFn, heightToBiome, biomeColor, isWalkable } from '../../shared/noiseWorld';
 import { createStylizedMaterial } from './stylizedMaterials';
 import { createChestModel, createPlayerModel } from './assets/factories';
-import { buildLandscapeChunk, createGrass, createTree } from './landscape';
+import { buildLandscapeChunk, createGrass, createTree, tickLandscapeChunk } from './landscape';
+import { createChatController } from './chat';
+import { createSettingsStore } from './settings';
+import { createSettingsUi } from './settingsUi';
+import { createVoiceCapture } from './voiceCapture';
+import { createImpactEffect, createSlashEffect, tickSlashEffect, type ImpactEffect, type SlashEffect } from './combatEffects';
 
 const app = document.getElementById('app')!;
 const menu = document.getElementById('menu')!;
@@ -21,9 +29,6 @@ const statsEl = document.getElementById('stats')!;
 const hintEl = document.getElementById('hint')!;
 const crosshairEl = document.getElementById('crosshair')!;
 const hotbarEl = document.getElementById('hotbar')!;
-const consoleEl = document.getElementById('console')!;
-const consoleInput = document.getElementById('console-input') as HTMLInputElement;
-const consoleOutput = document.getElementById('console-output')!;
 const invitePanel = document.getElementById('invite')!;
 const inviteSeedEl = document.getElementById('invite-seed')!;
 const inviteLinkEl = document.getElementById('invite-link')!;
@@ -34,7 +39,9 @@ const seedInput = document.getElementById('seed') as HTMLInputElement;
 const rollSeedBtn = document.getElementById('roll-seed') as HTMLButtonElement;
 const enterBtn = document.getElementById('enter') as HTMLButtonElement;
 
-const socketUrl = import.meta.env.VITE_SOCKET_URL || `http://${location.hostname}:9402`;
+const socketUrl = resolveSocketUrl(import.meta.env.VITE_SOCKET_URL, location.origin, location.protocol, location.hostname);
+const settingsStore = createSettingsStore();
+const settingsUi = createSettingsUi(settingsStore);
 
 function seedFromUrl(): string {
   const q = new URLSearchParams(location.search);
@@ -118,12 +125,12 @@ const remoteMeshes = new Map<string, THREE.Object3D>();
 const structureMeshes = new Map<string, THREE.Object3D>();
 const chunkMeshes = new Map<string, THREE.InstancedMesh>();
 const landscapeChunks = new Map<string, THREE.Group>();
+const activeCombatEffects: Array<SlashEffect | ImpactEffect> = [];
 const blockEdits = new Map<string, 'removed' | 'grass' | 'dirt' | 'stone'>();
 const raycaster = new THREE.Raycaster();
 const screenCenter = new THREE.Vector2(0, 0);
 let selectedBlock: 'grass' | 'dirt' | 'stone' = 'grass';
 let creativeMode = false;
-let consoleOpen = false;
 
 const keys = new Set<string>();
 let pointerLocked = false;
@@ -132,6 +139,7 @@ let pitch = -0.25;
 const velocity = new THREE.Vector3();
 let verticalV = 0;
 let grounded = false;
+let voiceCapture: ReturnType<typeof createVoiceCapture> | null = null;
 
 const BLOCK_SIZE = WORLD.tileSize;
 const MIN_BLOCK_Y = -3;
@@ -146,51 +154,54 @@ function blockColor(kind: 'grass' | 'dirt' | 'stone', topBiome: ReturnType<typeo
   return 0x8d6e53;
 }
 
-function setConsole(open: boolean) {
-  consoleOpen = open;
-  consoleEl.hidden = !open;
-  if (open) {
-    document.exitPointerLock();
-    consoleInput.value = '';
-    consoleInput.focus();
-  } else if (self) {
-    renderer.domElement.focus();
-  }
-}
+const chat = createChatController({
+  getSettings: settingsStore.get,
+  onVoiceFallbackRequested() {
+    voiceCapture?.requestBrowserFallback();
+  },
+  onLocalCommand(raw) {
+    const parsed = parseSlashCommand(raw);
+    if (!parsed) return false;
+    if (parsed.name === 'creative') {
+      creativeMode = true;
+      chat.addSystem('Creative mode enabled · fly with WASD + Space/E up, Q/Ctrl down.');
+    } else if (parsed.name === 'survival') {
+      creativeMode = false;
+      chat.addSystem('Survival mode enabled.');
+    } else if (parsed.name === 'help') {
+      chat.addSystem(getHelpText(parsed.args[0] || 'overview'));
+    } else if (parsed.name === 'ai') {
+      chat.addSystem(getHelpText('ai'));
+    } else {
+      chat.addSystem(`Unknown command: /${parsed.name}. Try /help commands.`);
+    }
+    updateStats();
+    return true;
+  },
+});
 
-function runConsoleCommand(raw: string) {
-  const command = raw.trim().toLowerCase();
-  if (command === '/creative') {
-    creativeMode = true;
-    consoleOutput.textContent = 'creative mode enabled · fly with WASD + Space/E up, Q/Ctrl down';
-  } else if (command === '/survival') {
-    creativeMode = false;
-    consoleOutput.textContent = 'survival mode enabled';
-  } else if (command) {
-    consoleOutput.textContent = `unknown command: ${command}`;
-  }
-  updateStats();
-}
+voiceCapture = createVoiceCapture({
+  isActive: chat.isOpen,
+  isEnabled: () => settingsStore.get().voiceTranscription,
+  onStatus: (text) => chat.setVoiceStatus(text),
+  onFallbackTranscript: (transcript) => chat.showTranscript(transcript, 'browser'),
+  async onClip(clip) {
+    if (!socket) {
+      chat.setVoiceStatus('Not connected to a realm.');
+      return;
+    }
+    chat.setVoiceStatus('Transcribing…');
+    const audio = new Uint8Array(await clip.blob.arrayBuffer());
+    socket.emit('voice:transcribe', { audio, mimeType: clip.mimeType, durationMs: clip.durationMs });
+  },
+});
 
 window.addEventListener('keydown', (e) => {
+  if (settingsUi.isOpen()) return;
   if (creativeMode && e.code === 'KeyW' && e.ctrlKey) e.preventDefault();
-  if (e.code === 'Backquote') {
-    e.preventDefault();
-    setConsole(!consoleOpen);
-    return;
-  }
-  if (!consoleOpen) keys.add(e.code);
+  keys.add(e.code);
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));
-consoleInput.addEventListener('keydown', (e) => {
-  e.stopPropagation();
-  if (e.key === 'Enter') {
-    runConsoleCommand(consoleInput.value);
-    consoleInput.value = '';
-  } else if (e.key === 'Escape') {
-    setConsole(false);
-  }
-});
 renderer.domElement.addEventListener('click', () => {
   renderer.domElement.requestPointerLock();
 });
@@ -374,6 +385,23 @@ function removeRemote(id: string) {
   remoteMeshes.delete(id);
 }
 
+function participantPosition(id: string): PlayerState['position'] | null {
+  if (self?.id === id) return self.position;
+  const remote = remoteMeshes.get(id);
+  if (!remote) return null;
+  return { x: remote.position.x, y: remote.position.y + 0.9, z: remote.position.z };
+}
+
+function showCombatEffect(data: CombatEffect) {
+  const target = participantPosition(data.targetId);
+  if (!target) return;
+  const effect = data.kind === 'impact'
+    ? createImpactEffect(target)
+    : createSlashEffect(participantPosition(data.attackerId) || target, target);
+  worldRoot.add(effect.group);
+  activeCombatEffects.push(effect);
+}
+
 function groundHeight(x: number, z: number) {
   const bx = Math.floor(x / BLOCK_SIZE);
   const bz = Math.floor(z / BLOCK_SIZE);
@@ -500,6 +528,8 @@ enterBtn.addEventListener('click', () => {
   if (chosenSeed !== worldSeed) {
     for (const [, mesh] of chunkMeshes) worldRoot.remove(mesh);
     chunkMeshes.clear();
+    for (const [, landscape] of landscapeChunks) worldRoot.remove(landscape);
+    landscapeChunks.clear();
     worldSeed = chosenSeed;
     heightAt = makeHeightFn(worldSeed);
   }
@@ -526,10 +556,13 @@ enterBtn.addEventListener('click', () => {
         }
         const ok = res as JoinResponse;
         self = ok.self;
+        chat.setSocket(socket!);
+        chat.setSelf(ok.self);
         worldSeed = ok.worldSeed;
         heightAt = makeHeightFn(worldSeed);
         playerCount = ok.playerCount ?? ok.players.length;
         menu.hidden = true;
+        document.getElementById('settings-button')!.hidden = false;
         crosshairEl.hidden = false;
         hotbarEl.hidden = false;
         selectBlock(0);
@@ -578,6 +611,7 @@ enterBtn.addEventListener('click', () => {
       self.hp = data.hp;
     }
   });
+  socket.on('combat:effect', showCombatEffect);
   socket.on('structure:add', (s: StructureState) => {
     if (structureMeshes.has(s.id)) return;
     const m = makeStructureMesh(s);
@@ -668,6 +702,12 @@ function tick() {
     camera.position.set(18, 14, 18);
     camera.lookAt(0, 0, 0);
     ensureChunksAround(0, 0);
+  }
+  const windTime = clock.elapsedTime;
+  for (const landscape of landscapeChunks.values()) tickLandscapeChunk(landscape, windTime);
+  if (starterLandscape) tickLandscapeChunk(starterLandscape, windTime);
+  for (let i = activeCombatEffects.length - 1; i >= 0; i -= 1) {
+    if (tickSlashEffect(activeCombatEffects[i], dt)) activeCombatEffects.splice(i, 1);
   }
   renderer.render(scene, camera);
 }

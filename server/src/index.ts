@@ -6,11 +6,18 @@ import {
   JoinRequest,
   JoinResponse,
   StructureState,
+  CombatEffect,
+  ChatMessage,
+  VoiceTranscriptionRequest,
+  VoiceTranscriptionResult,
   WORLD,
   PlayerRole,
   normalizeWorldSeed,
 } from '../../shared/protocol';
+import { getHelpText, parseSlashCommand } from '../../shared/commands';
 import { RoomRegistry } from './world/Room';
+import { validateVoiceClip } from './voice/audioPolicy';
+import { createTranscriptionProvider } from './voice/transcription';
 
 const PORT = Number(process.env.PORT || 9402);
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || true; // allow any origin in dev multiplayer
@@ -21,6 +28,9 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json());
 
 const registry = new RoomRegistry();
+const chatActivity = new Map<string, number[]>();
+const voiceActivity = new Map<string, number[]>();
+const transcriptionProvider = createTranscriptionProvider();
 
 app.get('/health', (_req, res) => {
   res.json({
@@ -63,6 +73,42 @@ function isRole(v: string): v is PlayerRole {
 
 function roomChannel(seed: string) {
   return `world:${seed}`;
+}
+
+function chatMessage(socketId: string, text: string, name: string, role: PlayerRole, voice = false): ChatMessage {
+  return {
+    id: `${socketId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    senderId: socketId,
+    senderName: name,
+    senderRole: role,
+    text,
+    createdAt: Date.now(),
+    ...(voice ? { voice: true } : {}),
+  };
+}
+
+function canChat(socketId: string): boolean {
+  const now = Date.now();
+  const recent = (chatActivity.get(socketId) || []).filter((time) => now - time < 10_000);
+  if (recent.length >= 8) {
+    chatActivity.set(socketId, recent);
+    return false;
+  }
+  recent.push(now);
+  chatActivity.set(socketId, recent);
+  return true;
+}
+
+function canTranscribe(socketId: string): boolean {
+  const now = Date.now();
+  const recent = (voiceActivity.get(socketId) || []).filter((time) => now - time < 60_000);
+  if (recent.length >= 6) {
+    voiceActivity.set(socketId, recent);
+    return false;
+  }
+  recent.push(now);
+  voiceActivity.set(socketId, recent);
+  return true;
 }
 
 io.on('connection', (socket) => {
@@ -117,6 +163,58 @@ io.on('connection', (socket) => {
       position: p.position,
       yaw: p.yaw,
     });
+  });
+
+  const sendChat = (data: { text?: string }, voice = false) => {
+    const room = registry.roomForSocket(socket.id);
+    const player = room?.players.get(socket.id);
+    if (!room || !player) return;
+    if (!canChat(socket.id)) {
+      socket.emit('chat:system', chatMessage('system', 'You are sending messages too quickly.', 'Realm', 'builder'));
+      return;
+    }
+    const text = String(data?.text || '').trim().slice(0, 240);
+    if (!text || parseSlashCommand(text)) {
+      if (text.startsWith('/')) {
+        socket.emit('chat:system', chatMessage('system', 'Unknown command. Try /help commands.', 'Realm', 'builder'));
+      }
+      return;
+    }
+    io.to(roomChannel(room.worldSeed)).emit('chat:message', chatMessage(socket.id, text, player.name, player.role, voice));
+    room.touch();
+  };
+
+  socket.on('chat:send', (data: { text?: string }) => sendChat(data));
+  socket.on('voice:send-transcript', (data: { text?: string }) => sendChat(data, true));
+
+  socket.on('chat:help', (topic: string, ack?: (text: string) => void) => {
+    ack?.(getHelpText(typeof topic === 'string' ? topic : 'overview'));
+  });
+
+  socket.on('voice:transcribe', async (data: Partial<VoiceTranscriptionRequest>) => {
+    const now = Date.now();
+    const room = registry.roomForSocket(socket.id);
+    const player = room?.players.get(socket.id);
+    const result = (status: 'unavailable' | 'rejected', reason: string): VoiceTranscriptionResult => ({ status, reason, createdAt: now });
+    if (!room || !player) return socket.emit('voice:result', result('rejected', 'join a realm before using voice'));
+    if (!canTranscribe(socket.id)) return socket.emit('voice:result', result('rejected', 'voice transcription rate limit reached'));
+
+    const audio = data?.audio instanceof Uint8Array ? data.audio : null;
+    const mimeType = typeof data?.mimeType === 'string' ? data.mimeType : '';
+    const durationMs = Number(data?.durationMs);
+    if (!audio) return socket.emit('voice:result', result('rejected', 'invalid audio payload'));
+    const policy = validateVoiceClip({ bytes: audio, mimeType, durationMs });
+    if (!policy.ok) return socket.emit('voice:result', result('rejected', policy.reason));
+
+    try {
+      const transcription = await transcriptionProvider.transcribe({ audio, mimeType });
+      if ('error' in transcription) return socket.emit('voice:result', result('unavailable', transcription.error));
+      const transcript = transcription.text.trim().slice(0, 240);
+      if (!transcript) return socket.emit('voice:result', result('unavailable', 'no speech detected'));
+      socket.emit('voice:result', { status: 'transcript', transcript, createdAt: now } satisfies VoiceTranscriptionResult);
+    } catch {
+      socket.emit('voice:result', result('unavailable', 'voice provider request failed'));
+    }
   });
 
   socket.on(
@@ -180,10 +278,21 @@ io.on('connection', (socket) => {
       }
     }
     room.touch();
+    if (attacker.role !== 'healer') {
+      const effect: CombatEffect = {
+        kind: attacker.role === 'mage' ? 'impact' : 'slash',
+        attackerId: attacker.id,
+        targetId: target.id,
+        createdAt: Date.now(),
+      };
+      io.to(roomChannel(room.worldSeed)).emit('combat:effect', effect);
+    }
     io.to(roomChannel(room.worldSeed)).emit('player:hp', { id: target.id, hp: target.hp });
   });
 
   socket.on('disconnect', () => {
+    chatActivity.delete(socket.id);
+    voiceActivity.delete(socket.id);
     const room = registry.unbindSocket(socket.id);
     if (room) {
       socket.to(roomChannel(room.worldSeed)).emit('player:leave', socket.id);

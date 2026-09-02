@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MRPG Realms">
+  <rect width="64" height="64" rx="10" fill="#0b1020"/>
+  <path d="M8 24 32 10l24 14v27L32 62 8 51Z" fill="#3d6df0" stroke="#ffd27d" stroke-width="3"/>
+  <path d="m32 10 24 14-24 14L8 24Z" fill="#6f9bff"/>
+  <path d="M21 31h22v13H21z" fill="#8d6e53" stroke="#f2e7d5" stroke-width="2"/>
+  <path d="M32 31v13" stroke="#f2e7d5" stroke-width="2"/>
+</svg>

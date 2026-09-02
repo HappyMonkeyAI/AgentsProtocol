@@ -34,6 +34,13 @@ export interface StructureState {
   createdAt: number;
 }
 
+export interface CombatEffect {
+  kind: 'slash' | 'impact';
+  attackerId: string;
+  targetId: string;
+  createdAt: number;
+}
+
 export interface JoinRequest {
   name: string;
   role: PlayerRole;
@@ -63,6 +70,26 @@ export interface WorldSummary {
 export interface ChatLikeError {
   message: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderRole: PlayerRole;
+  text: string;
+  createdAt: number;
+  voice?: boolean;
+}
+
+export interface VoiceTranscriptionRequest {
+  audio: Uint8Array;
+  mimeType: string;
+  durationMs: number;
+}
+
+export type VoiceTranscriptionResult =
+  | { status: 'transcript'; transcript: string; createdAt: number }
+  | { status: 'unavailable' | 'rejected'; reason: string; createdAt: number };
 
 export const ROLE_STATS: Record<PlayerRole, { maxHp: number; color: number; speed: number }> = {
   warrior: { maxHp: 150, color: 0xc45c26, speed: 6.2 },

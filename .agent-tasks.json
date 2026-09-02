@@ -5,8 +5,8 @@
   "integrationBranch": "feature/agent-worktree-infrastructure",
   "baseline": {
     "status": "checkpointed",
-    "head": "4d2a64b",
-    "note": "The scaffold and first visual slice are checkpointed on the integration branch. New child worktrees must use the current integration commit as their exact baseRef."
+    "head": "c20ee30",
+    "note": "The scaffold, visual material, voxel, creative-debug, authored asset-blockout, landscape, and voxel-collision slices are integrated. New child worktrees must use the current integration commit as their exact baseRef."
   },
   "tasks": [
     {
@@ -57,12 +57,22 @@
       "reviewer": "parent-hermes"
     },
     {
-      "id": "asset-integration-slice",
-      "title": "Integrate the reviewed crate/prop factory behind a reversible asset boundary",
-      "status": "pending",
-      "baseRef": "4d2a64b",
+      "id": "voxel-core-slice",
+      "title": "Validate chunked voxel terrain and local mine/place interaction",
+      "status": "complete",
+      "baseRef": "45f621f",
       "dependsOn": ["foundations-docs", "visual-material-slice"],
-      "ownedPaths": ["client/src/assets/", "client/src/", "docs/adr/"],
+      "ownedPaths": ["client/src/", "client/index.html", "docs/adr/"],
+      "protectedPaths": ["shared/protocol.ts", "server/src/"],
+      "verification": ["npm run typecheck", "npm test", "npm run build", "browser acceptance"]
+    },
+    {
+      "id": "asset-integration-slice",
+      "title": "Integrate reviewed chest, player, sword, tree, and grass assets behind a reversible boundary",
+      "status": "complete",
+      "baseRef": "0913fff",
+      "dependsOn": ["foundations-docs", "visual-material-slice", "voxel-core-slice"],
+      "ownedPaths": ["client/src/assets/", "client/src/", "docs/adr/", "docs/research/"],
       "protectedPaths": ["shared/protocol.ts", "server/src/"],
       "verification": ["npm run typecheck", "npm test", "npm run build", "browser acceptance"]
     }

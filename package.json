@@ -11,7 +11,7 @@
     "build": "tsc -p server/tsconfig.json && vite build --config client/vite.config.ts",
     "start": "node server/dist/index.js",
     "typecheck": "tsc -p server/tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit",
-    "test": "tsx --test server/src/world/noise.test.ts"
+    "test": "tsx --test server/src/world/*.test.ts"
   },
   "dependencies": {
     "alea": "^1.0.1",

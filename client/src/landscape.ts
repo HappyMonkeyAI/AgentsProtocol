@@ -6,9 +6,17 @@ function hash(x: number, z: number, salt: number) {
   return value - Math.floor(value);
 }
 
+function addWindData(group: THREE.Group, phase = 0, amplitude = 0.04) {
+  group.userData.windPhase = phase;
+  group.userData.windAmplitude = amplitude;
+  group.userData.windBaseRotationX = 0;
+  group.userData.windBaseRotationZ = 0;
+}
+
 export function createTree(scale: number) {
   const group = new THREE.Group();
   group.name = 'landscape-tree';
+  addWindData(group, 0, 0.025 + scale * 0.012);
   const trunk = new THREE.Mesh(
     new THREE.CylinderGeometry(0.16 * scale, 0.24 * scale, 1.7 * scale, 6),
     createStylizedMaterial(0x765035),
@@ -31,6 +39,7 @@ export function createTree(scale: number) {
 export function createGrass(scale: number) {
   const group = new THREE.Group();
   group.name = 'landscape-grass';
+  addWindData(group, 0, 0.07 + scale * 0.025);
   const blade = createStylizedMaterial(0x78b957);
   blade.side = THREE.DoubleSide;
   for (const angle of [0, Math.PI / 2]) {
@@ -42,6 +51,17 @@ export function createGrass(scale: number) {
     group.add(mesh);
   }
   return group;
+}
+
+export function tickLandscapeChunk(group: THREE.Group, elapsedSeconds: number) {
+  group.children.forEach((plant, index) => {
+    const data = plant.userData as { windPhase?: number; windAmplitude?: number; windBaseRotationX?: number; windBaseRotationZ?: number };
+    if (typeof data.windAmplitude !== 'number') return;
+    const phase = (data.windPhase || 0) + elapsedSeconds * 1.4 + index * 0.17;
+    const gust = Math.sin(phase) * 0.65 + Math.sin(phase * 0.43 + 1.7) * 0.35;
+    plant.rotation.x = (data.windBaseRotationX || 0) + gust * data.windAmplitude;
+    plant.rotation.z = (data.windBaseRotationZ || 0) + Math.cos(phase * 0.9) * data.windAmplitude * 0.7;
+  });
 }
 
 export function buildLandscapeChunk(
@@ -66,6 +86,7 @@ export function buildLandscapeChunk(
     const tree = createTree(0.82 + hash(cx + i, cz - i, 3) * 0.42);
     tree.position.set(x, h, z);
     tree.rotation.y = hash(cx + i, cz + i, 4) * Math.PI * 2;
+    tree.userData.windPhase = hash(cx * 19 + i, cz * 23 + i, 9) * Math.PI * 2;
     group.add(tree);
   }
 
@@ -77,6 +98,7 @@ export function buildLandscapeChunk(
     const grass = createGrass(0.65 + hash(cx - i, cz + i, 7) * 0.55);
     grass.position.set(x, h, z);
     grass.rotation.y = hash(cx + i, cz - i, 8) * Math.PI * 2;
+    grass.userData.windPhase = hash(cx * 29 + i, cz * 31 + i, 10) * Math.PI * 2;
     group.add(grass);
   }
 

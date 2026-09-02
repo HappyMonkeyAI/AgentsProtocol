@@ -1,0 +1,17 @@
+[Unit]
+Description=MRPG Realms production server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/MRPGRealms
+EnvironmentFile=%h/projects/MRPGRealms/.env
+ExecStart=%h/projects/MRPGRealms/node_modules/.bin/tsx server/src/index.ts
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
