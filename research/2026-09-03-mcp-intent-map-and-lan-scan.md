@@ -16,8 +16,14 @@ Always-on style mounts observed in config (names only):
 
 ### Dynamic MCP Proxy catalogue
 
-~57 available servers including swarm names (`agent_coordination`, `resource_sentinel`, `launcher_registry`, …) and generic catalogue (github, postgres, playwright, …).  
-**Gap:** HappyMonkey specialty components (e.g. AuditScan, article-research-mcp) may need explicit catalogue registration or stdio activate — still list as intents in MCP.md.
+~57→**60** available servers including swarm names (`agent_coordination`, `resource_sentinel`, `launcher_registry`, …) and generic catalogue (github, postgres, playwright, …).
+
+**Registration (same day follow-up):**
+- Catalogue names: `auditscan`, `article_research`, `social_research`
+- Clones under `HM_ROOT` (`~/happymonkey/…`)
+- AuditScan needed a **stdio FastMCP bridge** (`repo_audit_scan/mcp_stdio.py`) — prior MCP surface was an in-process registry only
+- Live verify: `proxy_search_tools("auditscan")` → hit; `proxy_activate_server` mounted auditscan (23) + article_research (8); bridge `diagnostics_run_self_check` ok
+- Proxy must **reload** after catalogue.json edits (kill/restart dynamic-mcp-proxy / Hermes reconnect)
 
 ### MonkeySwarm profiles
 
