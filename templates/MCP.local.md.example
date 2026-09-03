@@ -1,0 +1,36 @@
+# MCP.local.md.example — machine/project overlay
+
+Copy to project root as `MCP.local.md` (recommend gitignoring). No secrets.
+
+```markdown
+# MCP.local.md
+
+- Last discovery: YYYY-MM-DD
+- Discovery sources: dynamic_proxy list/search | hermes config names | MonkeySwarm components.json | optional LAN probe
+
+## Mounted / confirmed this machine
+- dynamic_proxy
+- resource_sentinel
+- launcher_registry
+- agent_coordination
+- agent_communication
+- user_context
+- (add others)
+
+## Wanted for this project but missing
+- auditscan — reason: security gate on releases
+- article-research-mcp — reason: planning RECON
+
+## Project-specific routing
+| Intent | Server | Note |
+|--------|--------|------|
+| example | postgres | only if this app uses Postgres |
+
+## LAN / deploy hints (no keys)
+- 192.168.5.215 — …
+- …
+
+## Activate notes
+- proxy_activate_server("…")
+- Hermes mcp_servers entry lives in operator config — do not commit tokens
+```

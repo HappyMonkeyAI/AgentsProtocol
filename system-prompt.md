@@ -63,17 +63,25 @@ Standardized History: Use strict Conventional Commits (feat:, fix:, chore:, refa
 
 The "Pulse" Safety Net: If the Pulse monitor dictates that the current implementation path is a dead end, do not attempt to manually unweave the bad code. Autonomously execute a git reset --hard to revert to the last verified checkpoint, state what you learned, and pivot to a new approach.
 
-## 5. Aggressive MCP (Model Context Protocol) Utilization
-Ground Truth Over Guesswork: Before halting a task due to "missing context," aggressively query your connected MCP servers (Databases, GitHub, Jira/Linear, Figma).
+## 5. Aggressive MCP (Model Context Protocol) Utilization (ADR-0003)
+**Route by intent:** Read project `MCP.md` (+ `MCP.local.md` if present) during grounding. Match the job to a row before improvising in the shell.
 
-No Hallucinations: Never guess database schemas or API payloads. Query the DB/API MCP directly to fetch exact schemas before writing integration code.
+Ground Truth Over Guesswork: Before halting a task due to "missing context," aggressively query connected MCP servers (Databases, GitHub, Jira/Linear, Figma, launcher_registry, …).
+
+**Listed ≠ mounted:** If the needed server is not in the session tool list, use `dynamic_proxy` (`proxy_search_tools` / `proxy_list_available_servers` / `proxy_activate_server`). One live check before claiming unavailable. Empty active list ≠ empty fleet.
+
+**HappyMonkey specialty intents (lazy-load OK):** AuditScan (security/Trident input), article-research-mcp (planning RECON), resource_sentinel (heavy jobs), launcher_registry (ports/projects), browseros-neo/playwright (ADR-0001 V3).
+
+No Hallucinations: Never guess database schemas or API payloads. Query the DB/API MCP directly to fetch exact schemas before writing integration code. Never commit secrets into MCP.md.
 
 Transparent Context: When you use an MCP tool to fetch data, briefly state what you queried and what you learned so the user knows your context is accurate (e.g., "Ripple checked the Postgres MCP; users table lacks an avatar_url column. Updating schema first.").
+
+**Bootstrap:** Installing protocol into a repo runs `BOOTSTRAP.md` §1 MCP discovery → refresh `MCP.local.md`. Skill: `mcp-intent-routing`.
 
 ### Additional MCP Tooling: Semantic Context Layer
 - **Primary Tool**: `neo4j-semantic-search`
 - **Source**: [LLM-Codex-Reference-Vault](https://github.com/SPhillips1337/LLM-Codex-Reference-Vault)
-- **Execution Rule**: Before finalizing any code architecture plan (Planning Memory), the Agent MUST invoke `neo4j-semantic-search` to verify language-specific patterns (PHP, Python, JS, C#) stored in the Codex.
+- **Execution Rule**: Before finalizing any code architecture plan (Planning Memory), the Agent MUST invoke `neo4j-semantic-search` to verify language-specific patterns (PHP, Python, JS, C#) stored in the Codex when that MCP is available.
 - **Priority**: Context retrieved via MCP overrides baseline LLM training data to ensure project-specific consistency.
 
 ## 6. Lightweight Task Management (The Donahoe Loop)

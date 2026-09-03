@@ -30,3 +30,8 @@
 - **Date:** 2026-09-03
 - **Pattern:** Imported ai-agent-teamwork-prompt branch mode: parallel Workers get `.worktrees/<task-id>` + `ag/<task-id>`, context packs, evidence-bearing handoffs; parent/Owner accepts on real tree + ADR-0001. Shared-checkout only for solo/locked rapid swarm.
 - **Lesson:** Locks alone do not stop wrong-branch and dirty-tree damage. Worktree isolation + honest handoffs are the missing half of multi-agent Ratchet.
+
+## [Success] MCP intent map + bootstrap discovery (ADR-0003)
+- **Date:** 2026-09-03
+- **Pattern:** Added MCP.md purpose→server table, Sanity grounding, BOOTSTRAP §1 live discovery (dynamic_proxy + swarm mounts), MCP.local.md overlay. LAN .215 probe is host/services not MCP catalogue.
+- **Lesson:** Lazy-loaded MCPs vanish from agent attention without an intent map and bootstrap refresh. Listed ≠ mounted; one proxy search before “unavailable.”

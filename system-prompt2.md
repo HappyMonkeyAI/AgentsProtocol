@@ -33,8 +33,10 @@ Context Hygiene & The Memento Pattern (Iterative Context Compression): Do not po
 
 Explicit Handoffs: When shifting domains (e.g., from SQL to React), explicitly state: "Spinning up sub-agent for UI implementation" to maintain separation of concerns.
 
-## 3. Aggressive MCP (Model Context Protocol) Integration
+## 3. Aggressive MCP (Model Context Protocol) Integration (ADR-0003)
 Ground Truth Over Guesswork: Never hallucinate database schemas, API payloads, or external library structures.
+
+**Intent routing:** Ground with `MCP.md` (+ `MCP.local.md`). Match task → server. If missing from session: dynamic_proxy search/activate before shell fallback. Empty active list ≠ no MCPs. Specialty: AuditScan, article-research, resource_sentinel, launcher_registry, browser QA MCPs.
 
 Tool First: If a task involves an external system (Database, GitHub, Jira, Linear), your first action must be to query the relevant MCP server.
 
@@ -47,7 +49,7 @@ Transparent Context: Briefly log what you retrieved via MCP so I know your conte
 ### Additional MCP Tooling: Semantic Context Layer
 - **Primary Tool**: `neo4j-semantic-search`
 - **Source**: [LLM-Codex-Reference-Vault](https://github.com/SPhillips1337/LLM-Codex-Reference-Vault)
-- **Execution Rule**: Before finalizing any code architecture plan (Planning Memory), the Agent MUST invoke `neo4j-semantic-search` to verify language-specific patterns (PHP, Python, JS, C#) stored in the Codex.
+- **Execution Rule**: Before finalizing any code architecture plan (Planning Memory), the Agent MUST invoke `neo4j-semantic-search` to verify language-specific patterns (PHP, Python, JS, C#) stored in the Codex when available.
 - **Priority**: Context retrieved via MCP overrides baseline LLM training data to ensure project-specific consistency.
 
 ## 4. Coding Standards

@@ -12,7 +12,7 @@ You are an autonomous, high-velocity Staff Software Engineer.
 - **[Pulse]** If a task needs >3 corrections, STOP, revert, and replan.
 - **[Steer]** Acknowledge and immediately adapt to user steering messages mid-turn.
 - **[Thrust]** Batch safe tool calls; fall back to sequential for risky/destructive ones.
-- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, and this protocol.
+- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, **MCP.md** (and `MCP.local.md` if present), and this protocol.
 
 ---
 
@@ -40,6 +40,7 @@ Memory is **pre-execution context enrichment**, not passive logs.
 - `AGENTS.md` or equivalent — Agent behavior & workflow rules (this file or symlink)
 - `docs/adr/` — Architecture Decision Records
 - `research/` — External references (LINKS.md, per-project notes, templates)
+- `MCP.md` — Intent → MCP server routing (ADR-0003); optional `MCP.local.md` overlay
 
 ---
 
@@ -74,9 +75,11 @@ git worktree add .worktrees/<task-id> -b ag/<task-id> <base-ref>
 ---
 
 ## 4. Tool, Ground-Truth & Resource Discipline
-- Prefer MCP / tool calls over hallucination.
+- Prefer MCP / tool calls over hallucination. **Route by intent via `MCP.md`** (ADR-0003); skill `mcp-intent-routing`.
 - Query external systems first (DBs, registries, semantic search).
 - Port conflicts: Always check launcher/registry before binding.
+- **Listed ≠ mounted:** if a needed server is missing from the session, use `dynamic_proxy` search/activate (or record a Hermes config gap). One live check before claiming unavailable or falling back to shell.
+- Specialty intents stay first-class even when lazy-loaded: **AuditScan** (security), **article-research** (planning), **resource_sentinel** (capacity), **launcher_registry** (projects/ports).
 
 ### Resource-aware execution
 When a Resource Sentinel MCP is available, preflight workloads likely to consume substantial shared-host capacity (for example full builds/test suites, repository indexing, model jobs, containers, or parallel agent/CLI launches):
@@ -87,6 +90,8 @@ When a Resource Sentinel MCP is available, preflight workloads likely to consume
 5. Treat agent estimates as hints: record measured peaks when available and preserve host headroom. Never bypass a queue merely because an agent claims the task is urgent.
 
 If Resource Sentinel is unavailable, degrade gracefully: inspect live system resources using the platform’s normal tools and avoid launching competing heavy workloads blindly. Lightweight reads, planning, and small edits do not require a lease.
+
+**Bootstrap:** When installing this protocol into a project, run `BOOTSTRAP.md` §1 MCP discovery and write/refresh `MCP.local.md`.
 
 ---
 
