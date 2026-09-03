@@ -32,9 +32,9 @@
 
 | Intent | Server / component | Activate / find via | Protocol hook |
 |--------|--------------------|---------------------|---------------|
-| **Security / vulnerability audit** | **`auditscan`** (HappyMonkeyAI/AuditScan stdio FastMCP bridge) | `proxy_search_tools("auditscan")` → `proxy_activate_server("auditscan")` · cmd: `uv --directory <AuditScan> run --extra mcp python -m repo_audit_scan.mcp_stdio` | Trident **input**, not Owner V2/V3 substitute |
-| **Article / tutorial research** | **`article_research`** | `proxy_search_tools("article research")` → `proxy_activate_server("article_research")` · `uv --directory <article-research-mcp> run article-research-mcp` | Planning / Deep Mode RECON |
-| Social / trend research | **`social_research`** | `proxy_activate_server("social_research")` · research profile | Content planning |
+| **Security / vulnerability audit** | **`auditscan`** (HappyMonkeyAI/AuditScan stdio FastMCP bridge) | Hermes always-on when configured · else `proxy_activate_server("auditscan")` · cmd: `uv --directory <AuditScan> run --extra mcp python -m repo_audit_scan.mcp_stdio` | Trident **input**, not Owner V2/V3 substitute |
+| **Article / tutorial research** | **`article_research`** | Hermes always-on when configured · else `proxy_activate_server("article_research")` · `uv --directory <article-research-mcp> run article-research-mcp` | Planning / Deep Mode RECON |
+| Social / trend research | **`social_research`** | On-demand: `proxy_activate_server("social_research")` · research profile | Content planning |
 | dev.to articles | `devto-mcp-server` | research profile | Lightweight article search |
 | UK public data | OpenUKPublicDataMCP | `data` profile | Domain verticals |
 | US public data | OpenUSPublicDataMCP | `data` profile | Domain verticals |

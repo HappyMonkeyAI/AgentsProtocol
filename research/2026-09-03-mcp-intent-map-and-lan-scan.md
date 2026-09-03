@@ -24,6 +24,8 @@ Always-on style mounts observed in config (names only):
 - AuditScan needed a **stdio FastMCP bridge** (`repo_audit_scan/mcp_stdio.py`) — prior MCP surface was an in-process registry only
 - Live verify: `proxy_search_tools("auditscan")` → hit; `proxy_activate_server` mounted auditscan (23) + article_research (8); bridge `diagnostics_run_self_check` ok
 - Proxy must **reload** after catalogue.json edits (kill/restart dynamic-mcp-proxy / Hermes reconnect)
+- **Pushed:** AuditScan `f020cd4`, DynamicMCPProxy `68858e4` to GitHub
+- **Hermes always-on (this operator):** `hermes mcp add auditscan` + `article_research` — `hermes mcp test` both green (23 + 7 tools). `social_research` stays catalogue/on-demand. **New Hermes session** required before `mcp_auditscan_*` / `mcp_article_research_*` appear in-chat. Note: `hermes mcp add --args` must be last or `--connect-timeout` is swallowed into args.
 
 ### MonkeySwarm profiles
 
