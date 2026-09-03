@@ -25,3 +25,8 @@
 - **Date:** 2026-09-03
 - **Pattern:** Promoted product-level acceptance practice (independent Owner proof, dogfood/live readback, contract/Ripple fences) into core protocol as V0–V4 ladder. Worker self-tests ≠ V2; Trident ≠ feature acceptance; Ratchet only after applicable stages or human waiver.
 - **Lesson:** Docs/SPECs reduce ambiguity but not implementation myopia. Hard independent verification gates beat soft “verify manually where needed.” Bound exploratory agents; keep commercial QA optional.
+
+## [Success] Isolated worktrees + evidence handoffs (ADR-0002)
+- **Date:** 2026-09-03
+- **Pattern:** Imported ai-agent-teamwork-prompt branch mode: parallel Workers get `.worktrees/<task-id>` + `ag/<task-id>`, context packs, evidence-bearing handoffs; parent/Owner accepts on real tree + ADR-0001. Shared-checkout only for solo/locked rapid swarm.
+- **Lesson:** Locks alone do not stop wrong-branch and dirty-tree damage. Worktree isolation + honest handoffs are the missing half of multi-agent Ratchet.

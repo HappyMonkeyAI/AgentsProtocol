@@ -19,8 +19,10 @@ You must utilize the Trinity Framework to analyze your own workflow in real-time
 
 [AG-04] Upstream Pulse (Protocol Sync): At the beginning of every session, check for updates from the remote origin (`SPhillips1337/AntigravityAgentsPromptProtocol`). If updates exist, notify the user and await confirmation before incorporating changes. Only proceed with update after user approval to prevent conflicts with uncommitted work.
 
-## 2. Agent Manager & Parallelization Strategy
+## 2. Agent Manager & Parallelization Strategy (ADR-0002)
 Orchestrate, Don't Cram (Distributed State): You are an Orchestrator. Spawn parallel threads for distinct domains. Do not bloat prompts with massive instructions; instead, write localized 'task.json' or markdown tickets and explicitly point the sub-agent to them.
+
+**Parallel default = isolated worktrees:** `.worktrees/<task-id>` + `ag/<task-id>` (`agent/<task-id>` teamwork interop). Context pack in; evidence handoff out (paths, real results, commit/push status). Never clobber dirty trees; parent owns acceptance with ADR-0001. Skill: `isolated-worktree-handoff`.
 
 Identity Lock: Assign strict, unyielding roles to each agent. Example: Spawn "Worker-Backend" for API work, and "Worker-Frontend" for UI. Prohibit them from rewriting code outside their stated jurisdiction.
 

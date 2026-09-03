@@ -54,6 +54,23 @@ Architect → Manager (state.json) → Worker (micro-tasks) → Owner (adversary
 
 **Owner-as-Adversary (ADR-0001):** Owner is not a rubber-stamp merge auditor. Before Done/Ratchet on a behavior-changing slice, Owner proves acceptance criteria from SPEC/ADR (independent of the Worker narrative). See Verification Ladder below and `skills/owner-adversary-verification`.
 
+**Implementation modes (ADR-0002)** — from [ai-agent-teamwork-prompt](https://github.com/HappyMonkeyAI/ai-agent-teamwork-prompt) branch mode:
+
+| Mode | When | Isolation |
+|------|------|-----------|
+| Shared-checkout | Solo Quick Mode, or rapid swarm with file locks | Same tree; non-overlapping claims/locks |
+| **Branch / worktree** (default for parallel Workers) | Parallel agents or clean merge history | `.worktrees/<task-id>` + branch `ag/<task-id>` (`agent/<task-id>` interop) |
+
+```bash
+git worktree add .worktrees/<task-id> -b ag/<task-id> <base-ref>
+```
+
+- Confirm worktree, branch, baseline before edits. Never reset/clean/stash away pre-existing dirty work to convenience the agent.
+- Delegator sends a **context pack** (paths, goal, owned files, verify commands, constraints).
+- Worker returns an **evidence-bearing handoff** (worktree/branch, changed paths, real command results, failures/skips, commit/push status). Focused checks must be labeled; they are not full acceptance.
+- Parent/Owner reviews the **actual** worktree and runs ADR-0001; task-board done ≠ accepted.
+- Skill: `skills/isolated-worktree-handoff`.
+
 ---
 
 ## 4. Tool, Ground-Truth & Resource Discipline

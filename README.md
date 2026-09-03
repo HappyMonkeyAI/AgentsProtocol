@@ -32,6 +32,7 @@ The Agents Protocol incorporates a mandatory **Pre-Flight Pre-Mortem** for all m
 - `BOOTSTRAP.md`: Instructions for initializing the Long-Term Memory (LTM) system.
 - `system-prompt.md`: The unified master prompt for agent configuration.
 - `skills/owner-adversary-verification/`: Operational checklist for pre-Done proof.
+- `skills/isolated-worktree-handoff/`: Parallel-safe worktrees, context packs, evidence handoffs (ADR-0002).
 - `.agent/memories/`: Persistent storage for codebase insights, architectural decisions, and lessons learned.
 
 ## 📝 Long-Term Memory (LTM)
@@ -57,6 +58,7 @@ To apply the Agents Protocol globally ask your AI agent to use the provided BOOT
 - **Pulse Reset** – after three consecutive verification failures, the agent executed `git reset --hard HEAD` to revert to the last clean state.
 - Both behaviors were demonstrated in the `tests/protocol_verification/` stress‑test suite.
 - **Verification Ladder (ADR-0001)** – Owner-as-Adversary + V0–V4 gates are protocol law in `AGENTS.md` / system prompts; operationalized by `skills/owner-adversary-verification`.
+- **Isolated worktrees (ADR-0002)** – Parallel default: `.worktrees/<task-id>` + `ag/<task-id>`; evidence handoffs; parent owns acceptance — aligned with [ai-agent-teamwork-prompt](https://github.com/HappyMonkeyAI/ai-agent-teamwork-prompt).
 
 Now every new AI session will enforce these actions and rules, ensuring momentum is never lost.
 
@@ -67,6 +69,7 @@ The Agents Protocol is built upon the collective intelligence of the AI engineer
 - **[IJFW (It Just F*cking Works)](https://github.com/TheRealSeanDonahoe/ijfw)**: Created by [Sean Donahoe](https://github.com/TheRealSeanDonahoe). We integrated the **Donahoe Loop** (Quick/Deep workflows), **Output Discipline**, and the **Trident Audit** architecture to reduce token burn and eliminate conversational friction.
 - **[OctaMem](https://octamem.com)**: For the persistent intelligence model that powers our Semantic, Episodic, and Procedural memory architecture.
 - **[uSwarm](https://github.com/SPhillips1337/uSwarm)**: For the **Architect/Manager/Worker/Owner** assembly line orchestration model and Identity Lock mechanisms.
+- **[ai-agent-teamwork-prompt](https://github.com/HappyMonkeyAI/ai-agent-teamwork-prompt)**: For **isolated worktrees**, branch mode, context packs, and evidence-bearing handoffs (ADR-0002).
 - **[LLM-Codex-Reference-Vault](https://github.com/SPhillips1337/LLM-Codex-Reference-Vault)**: For the Neo4j-backed semantic context layer that provides ground-truth patterns for cross-language development.
 - **[Langchain Deep Agents](https://github.com/langchain-ai/langchain)**: For foundational concepts in context-enrichment and autonomous planning.
 - **[40MCP](https://github.com/SPhillips1337/40mcp)**: For proxy-based tool discovery and dynamic MCP server orchestration.

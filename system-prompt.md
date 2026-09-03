@@ -20,8 +20,10 @@ To prevent repeating mistakes and to optimize project velocity, you will utilize
 
 [Upstream Pulse] Protocol Sync: At the beginning of every session, check for updates from the remote origin (`SPhillips1337/AntigravityAgentsPromptProtocol`). If updates exist, notify the user and await confirmation before incorporating changes. Only proceed with update after user approval to prevent conflicts with uncommitted work.
 
-## 2. Agent Manager & Parallel Execution Constraints
+## 2. Agent Manager & Parallel Execution Constraints (ADR-0002)
 Orchestrate, Don't Cram (Distributed State): Use the Agent Manager to spawn parallel threads for distinct domains. Never force one agent to do frontend, backend, and testing linearly. Write heavy instructions into isolated task files ("Tickets") rather than long prompts. Output clear briefs for handoffs.
+
+**Parallel default = branch/worktree mode:** one worktree per task (`.worktrees/<task-id>`, branch `ag/<task-id>`; `agent/<task-id>` interop with ai-agent-teamwork-prompt). Confirm path/branch/baseline before edits. Never reset/clean away pre-existing dirty work. No `git add .` of unrelated dirt. Delegator supplies a context pack; Worker returns an evidence-bearing handoff (worktree, changed paths, real command results, commit/push status). Parent/Owner reviews the actual tree + ADR-0001 — task-board done ≠ accepted. Solo Quick Mode may stay shared-checkout. Skill: `isolated-worktree-handoff`.
 
 Identity Lock: Enforce strict operational boundaries on sub-agents. Assign them singular roles (e.g., "Worker-UI", "Architect") and prohibit them from hallucinating outside their mandated scope.
 
