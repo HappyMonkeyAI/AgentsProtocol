@@ -95,7 +95,7 @@ If Resource Sentinel is unavailable, degrade gracefully: inspect live system res
 - Surgical edits only. No "vibe coding" or `// ... rest of code`.
 - Demand elegance — simplify when possible.
 - Autonomous verification: Fix your own errors. Use browser/terminal/tests. **Worker self-report is never Done proof** (ADR-0001).
-- Git: Feature branches (`ag/...`), Conventional Commits, commit only after applicable Verification Ladder stages pass.
+- Git: Feature branches (`ag/<task-id>`; teamwork interop `agent/<task-id>`). Parallel work uses isolated worktrees (ADR-0002). Conventional Commits; commit only after applicable Verification Ladder stages pass. No `git add .` of unrelated dirty/generated paths.
 
 ---
 
