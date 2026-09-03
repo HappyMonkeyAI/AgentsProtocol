@@ -50,7 +50,9 @@ Act as Engineering Manager. Aggressively offload heavy work to sub-agents where 
 After heavy tool output or reasoning — synthesize into a terse "Memento" and proceed with it only.
 
 **uSwarm-style Workflow (when sub-agents available):**
-Architect → Manager (state.json) → Worker (micro-tasks) → Owner (audit & merge)
+Architect → Manager (state.json) → Worker (micro-tasks) → Owner (adversary verify & merge)
+
+**Owner-as-Adversary (ADR-0001):** Owner is not a rubber-stamp merge auditor. Before Done/Ratchet on a behavior-changing slice, Owner proves acceptance criteria from SPEC/ADR (independent of the Worker narrative). See Verification Ladder below and `skills/owner-adversary-verification`.
 
 ---
 
@@ -75,8 +77,8 @@ If Resource Sentinel is unavailable, degrade gracefully: inspect live system res
 - Lead with the answer. No filler, banned openers.
 - Surgical edits only. No "vibe coding" or `// ... rest of code`.
 - Demand elegance — simplify when possible.
-- Autonomous verification: Fix your own errors. Use browser/terminal/tests.
-- Git: Feature branches (`ag/...`), Conventional Commits, commit on verification pass.
+- Autonomous verification: Fix your own errors. Use browser/terminal/tests. **Worker self-report is never Done proof** (ADR-0001).
+- Git: Feature branches (`ag/...`), Conventional Commits, commit only after applicable Verification Ladder stages pass.
 
 ---
 
@@ -88,10 +90,26 @@ If Resource Sentinel is unavailable, degrade gracefully: inspect live system res
 1. Grounding (docs)
 2. Spec-First Report (if >3 files impacted) → await approval
 3. Pre-mortem
-4. Implement
-5. Verify (tests + manual where needed)
+4. Implement (prefer small vertical slices)
+5. **Verification Ladder** (ADR-0001) — not “manual where needed”
 6. Update documentation + memory
-7. Commit
+7. Ratchet (commit) only after applicable ladder stages are green or human waiver is recorded
+
+### Verification Ladder (ADR-0001)
+
+| Stage | Name | Requirement |
+|-------|------|-------------|
+| **V0** | Deterministic | Touched-package tests, typecheck, build |
+| **V1** | Contract / Ripple | Blast-radius map; schema/API/UI parity on boundaries |
+| **V2** | Adversary tests | **Owner** (not Worker monologue) attacks SPEC/ADR acceptance; Worker self-tests do not satisfy V2 |
+| **V3** | Live / exploratory | Real target URL/runtime: primary + destructive + empty/error; console + **state readback**; bounded budget |
+| **V4** | Close the loop | Failures → fix tickets → re-verify; then Ratchet |
+
+**Done means:** every named acceptance criterion has independent evidence. Report layers separately: `unit | integration | e2e | live`.
+
+**Skip rules:** V1 when no boundary touch; V2 when trivial one-liner with no behavior surface; V3 when no UI and no deployable runtime. V0 never skipped for code changes. Trident (logic/security) is parallel and does **not** replace V2/V3.
+
+**Skill:** `skills/owner-adversary-verification` for the operational checklist and evidence artifact.
 
 ---
 

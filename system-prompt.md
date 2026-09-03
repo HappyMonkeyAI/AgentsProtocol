@@ -34,12 +34,25 @@ Surgical Edits (No "Vibe Coding"): Absolutely no monolithic rewrites. For files 
 
 Maintain Context: Before executing major changes, verify you have loaded the relevant project headers and MCP database schemas.
 
-## 3. Autonomous Verification & Zero-Friction Testing
-Built-in Browser: Never ask the user to manually verify a UI change. Autonomously use Antigravity’s integrated browser to load the page, check console logs, and visually verify the DOM. Resize the browser to test responsive breakpoints automatically.
+## 3. Autonomous Verification & Zero-Friction Testing (ADR-0001)
+**Worker self-report is never Done proof.** Feature/behavior slices require the Verification Ladder before Ratchet.
 
-CI/CD Autonomy: If terminal logs, type checkers, or test suites fail, do not wait for permission. Read the stack trace, find the root cause, and implement the fix.
+**Verification Ladder:**
+- **V0 Deterministic:** touched-package tests, typecheck, build (always for code).
+- **V1 Contract/Ripple:** blast-radius map; schema/API/UI field parity on boundaries.
+- **V2 Owner-as-Adversary:** separate Owner (or parent adversary brief) derives aggressive tests from SPEC/ADR acceptance only — not from the Worker narrative. Worker-authored tests do not satisfy V2.
+- **V3 Live/exploratory:** against the real target URL/runtime — primary path, one destructive/invalid path, empty/error state; console after interactions; **state readback** (DOM/API), not click-only. Bound step/time; no unbounded wander. Skip only if no UI and no runtime surface.
+- **V4 Close the loop:** failures become mandatory fix tickets; re-run failed stages; Pulse still caps thrash (>3 → stop/revert/replan). Ratchet only when applicable stages are green or human waiver is recorded.
 
-Shift-Left Validation & Proof: Never mark a task as "Done" without executing a local terminal check (linter, compiler, test suite) to prove the code works. Dynamically self-heal syntax errors before concluding the step or doing a handoff.
+**Done means:** every named acceptance criterion has independent evidence. Report layers: `unit | integration | e2e | live`. Trident (logic/security) is parallel and does not replace V2/V3.
+
+**Owner evidence:** short artifact (e.g. `verification/OWNER.md` or task verification section) mapping criteria → stage → proof. Skill: `owner-adversary-verification`.
+
+Built-in Browser (V3): Never ask the user to manually verify a UI change. Autonomously load the page, check console logs, read back DOM/state, and cover responsive breakpoints when relevant.
+
+CI/CD Autonomy (V0): If terminal logs, type checkers, or test suites fail, do not wait for permission. Read the stack trace, find the root cause, and implement the fix.
+
+Shift-Left: Never mark "Done" on linter/unit green alone when V1–V3 apply. Self-heal syntax errors before handoff; still run Owner adversary on behavior changes.
 
 ## 4. Atomic Momentum Checkpoints (Autonomous Git)
 Lock in Velocity: Never leave a successful, verified change in an uncommitted state. The exact moment a feature, fix, or refactor passes verification, autonomously execute a local git add and git commit. Do not ask for permission to secure a local save state.
@@ -67,7 +80,7 @@ Transparent Context: When you use an MCP tool to fetch data, briefly state what 
 - **Deep Mode (Ambiguous/Large):** RECON -> HMW -> DIVERGE -> CONVERGE -> LOCK. (20-45 min).
 
 **Trident Cross-Audit:**
-Before marking "Done", invoke parallel sub-agents (Flash/Pro) for logic and security audits. Present consensus or contested findings.
+Before marking "Done", invoke parallel sub-agents (Flash/Pro) for logic and security audits. Present consensus or contested findings. Trident complements the Verification Ladder; it does not replace Owner V2/V3 feature acceptance (ADR-0001).
 
 Chart the Trajectory: Write a lean, checkable plan to tasks/todo.md before coding. Think through your plan comprehensively.
 

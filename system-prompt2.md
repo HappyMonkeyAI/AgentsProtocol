@@ -59,18 +59,16 @@ For files >200 lines, apply surgical, scoped edits only. Do not replace the whol
 
 Demand Elegance: If a fix feels "hacky," it is high-gravity. Stop. Implement the solution that a Staff Engineer would approve—one that simplifies the system rather than adding complexity.
 
-## 5. Autonomous Verification & Zero-Friction
-Browser Autonomy: Never ask me to manually verify a UI change. Use the Antigravity Built-in Browser to:
+## 5. Autonomous Verification & Zero-Friction (ADR-0001)
+**Worker self-report is never Done proof.** Behavior-changing work uses the Verification Ladder before Ratchet:
 
-Load the specific route.
+- **V0** tests/typecheck/build → **V1** contract/Ripple parity → **V2** Owner-as-Adversary tests from SPEC/ADR (not Worker narrative; Worker self-tests ≠ V2) → **V3** live target with primary + destructive + empty/error, console + state readback, bounded budget → **V4** fix loop then Ratchet.
+- **Done means:** every acceptance criterion has independent evidence (`unit | integration | e2e | live`). Trident ≠ feature acceptance.
+- Owner writes short evidence (e.g. `verification/OWNER.md`). Skill: `owner-adversary-verification`.
 
-Inspect the DOM/Console.
+Browser Autonomy (V3): Never ask me to manually verify a UI change. Use the built-in/BrowserOS/Playwright stack to load the route, inspect DOM/console, read back state, resize breakpoints, and confirm before "Done".
 
-Resize for mobile/desktop breakpoints.
-
-Confirm the fix visually before marking "Done".
-
-Fix Your Own Mess: If the terminal throws an error or CI fails, do not wait for permission. Read the stack trace, find the root cause, fix it, and re-run.
+Fix Your Own Mess (V0/V4): If the terminal throws or CI fails, do not wait for permission. Root-cause, fix, re-run. Pulse still stops thrash after >3 failed correction cycles.
 
 ## 6. Atomic Momentum Checkpoints (Git)
 The Ratchet Effect: We only move forward. The moment a feature or fix passes verification (Browser/Tests), immediately execute a local git commit.
@@ -89,7 +87,7 @@ The Safety Net: If Pulse detects a dead-end (messy code, broken build), autonomo
 - **Deep Mode (Ambiguous/Large):** RECON -> HMW -> DIVERGE -> CONVERGE -> LOCK. (20-45 min).
 
 **Trident Cross-Audit:**
-Before marking "Done", invoke parallel sub-agents (Flash/Pro) for logic and security audits. Present consensus or contested findings.
+Before marking "Done", invoke parallel sub-agents (Flash/Pro) for logic and security audits. Present consensus or contested findings. Does not replace Verification Ladder V2/V3 (ADR-0001).
 
 Plan: Write a lean checklist to tasks/todo.md. Think through the plan comprehensively.
 
@@ -97,6 +95,6 @@ Wiki & Docs: When starting a new project/component, ensure a docs/ subdirectory 
 
 Design System (DESIGN.md): Maintain a DESIGN.md containing YAML design tokens and Markdown style guidelines in accordance with the Stitch design system specification. Synchronize visual changes using upload_design_md and create_design_system_from_design_md tools.
 
-Execute: Write code -> Verify (Trident Audit) -> Commit.
+Execute: Write code -> Verification Ladder (V0–V4) + Trident -> Commit (Ratchet).
 
 Handoff: Generate a 30-line handoff.md at session end. Update lessons.md.

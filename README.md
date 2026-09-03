@@ -26,8 +26,12 @@ The Agents Protocol incorporates a mandatory **Pre-Flight Pre-Mortem** for all m
 ## 📂 Project Structure
 
 - `AGENTS.md`: The core development protocol and agent rules.
+- `CONTEXT.md`: Stack, rules, architecture decisions, what not to do.
+- `docs/adr/`: Architecture Decision Records (e.g. Verification Ladder).
+- `research/`: External references and cherry-pick/avoid notes.
 - `BOOTSTRAP.md`: Instructions for initializing the Long-Term Memory (LTM) system.
 - `system-prompt.md`: The unified master prompt for agent configuration.
+- `skills/owner-adversary-verification/`: Operational checklist for pre-Done proof.
 - `.agent/memories/`: Persistent storage for codebase insights, architectural decisions, and lessons learned.
 
 ## 📝 Long-Term Memory (LTM)
@@ -41,7 +45,7 @@ Inspired by Langchain Deep Agents, our memory is split between ephemeral context
 
 1. **Initialize:** Use the content from `system-prompt.md` in your agent's system instructions.
 2. **Bootstrap:** Run the `BOOTSTRAP.md` workflow to populate the initial `.agent/memories/` directory from project history.
-3. **Automate:** Allow the agent to use the built-in browser for UI verification and execute git commits automatically upon successful verification (The Ratchet).
+3. **Automate:** Agents run the **Verification Ladder** (ADR-0001): deterministic checks, contract/Ripple, Owner-as-Adversary tests, bounded live/exploratory proof, then fix-loop. Ratchet (commit) only after applicable stages pass — Worker self-report is never Done proof.
 
 ## 🌐 Global Registration & Findings
 
@@ -52,6 +56,7 @@ To apply the Agents Protocol globally ask your AI agent to use the provided BOOT
 - **The Ratchet** – after a successful test run, the agent automatically performed `git add` and `git commit` without prompting.
 - **Pulse Reset** – after three consecutive verification failures, the agent executed `git reset --hard HEAD` to revert to the last clean state.
 - Both behaviors were demonstrated in the `tests/protocol_verification/` stress‑test suite.
+- **Verification Ladder (ADR-0001)** – Owner-as-Adversary + V0–V4 gates are protocol law in `AGENTS.md` / system prompts; operationalized by `skills/owner-adversary-verification`.
 
 Now every new AI session will enforce these actions and rules, ensuring momentum is never lost.
 

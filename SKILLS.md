@@ -36,7 +36,8 @@ This catalog contains skills integrated from the [antigravity-skills](https://gi
 
 | Skill | Purpose |
 |-------|---------|
-| [`tdd-orchestrator`](skills/tdd-orchestrator/SKILL.md) | Test-driven development workflows |
+| [`tdd-orchestrator`](skills/tdd-orchestrator/SKILL.md) | Test-driven development workflows (Worker V0; not Owner V2) |
+| [`owner-adversary-verification`](skills/owner-adversary-verification/SKILL.md) | Owner-as-Adversary Verification Ladder V0–V4 before Done/Ratchet (ADR-0001) |
 
 ### 🔄 For Atomic Momentum Checkpoints
 
@@ -76,4 +77,4 @@ https://github.com/rmyndharis/antigravity-skills/tree/main/skills
 ```
 
 Total skills available: **305**  
-Currently integrated: **15** (core set)
+Currently integrated: **16** (core set)

@@ -20,3 +20,8 @@
 - **Date: 2026-04-27**
 - **Pattern:** Integrated **Steering Awareness**, **Iterative Synthesis**, and **Batch Momentum** patterns from the `pi-mono` toolkit into `AGENTS.md` and system prompts.
 - **Lesson:** Adopting mature agent-loop primitives (like mid-turn steering and iterative context updates) drastically reduces "Drag" and context drift in long-running coding sessions.
+
+## [Success] Verification Ladder + Owner-as-Adversary (ADR-0001)
+- **Date:** 2026-09-03
+- **Pattern:** Promoted product-level acceptance practice (independent Owner proof, dogfood/live readback, contract/Ripple fences) into core protocol as V0–V4 ladder. Worker self-tests ≠ V2; Trident ≠ feature acceptance; Ratchet only after applicable stages or human waiver.
+- **Lesson:** Docs/SPECs reduce ambiguity but not implementation myopia. Hard independent verification gates beat soft “verify manually where needed.” Bound exploratory agents; keep commercial QA optional.
