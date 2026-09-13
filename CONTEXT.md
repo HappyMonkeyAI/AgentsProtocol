@@ -11,6 +11,7 @@ Protocol repository: agent behavior rules, system prompts, curated skills, LTM l
 | [ADR-0001](docs/adr/0001-verification-ladder-and-owner-adversary.md) | Verification Ladder V0–V4 + Owner-as-Adversary before Done/Ratchet. Worker self-report ≠ proof. Trident ≠ feature acceptance. |
 | [ADR-0002](docs/adr/0002-isolated-worktrees-and-evidence-handoffs.md) | Branch/worktree mode for parallel work; context packs; evidence handoffs. Upstream: ai-agent-teamwork-prompt ADR-003. |
 | [ADR-0003](docs/adr/0003-mcp-intent-map-and-bootstrap-discovery.md) | `MCP.md` intent routing + bootstrap discovery → `MCP.local.md`. Listed ≠ mounted; live proxy wins availability. |
+| [ADR-0004](docs/adr/0004-adaptive-model-escalation.md) | Provider-neutral model escalation after evidence of structural uncertainty or repeated failure; Pulse remains the stop/replan boundary. |
 
 ## Rules (high signal)
 
@@ -19,6 +20,7 @@ Protocol repository: agent behavior rules, system prompts, curated skills, LTM l
 - uSwarm: Architect → Manager → Worker → **Owner (adversary verify & merge)**.
 - Parallel Workers default to isolated `.worktrees/<task-id>` + `ag/<task-id>` (ADR-0002).
 - Ratchet only after applicable Verification Ladder stages (or recorded human waiver).
+- Start with the least expensive adequate model; escalate once after two materially unsuccessful repairs or clear Ripple complexity, then stop/re-plan if escalation fails.
 - Prefer small vertical slices over giant features + heavy QA.
 - MCP: route by intent; dynamic_proxy activate when missing; no secrets in git.
 
@@ -32,6 +34,7 @@ Protocol repository: agent behavior rules, system prompts, curated skills, LTM l
 - Parallel agents on one dirty shared checkout without locks or worktrees.
 - Reset/clean pre-existing dirty paths to convenience an agent.
 - Accept task-board complete without evidence-bearing handoff + Owner review.
+- Escalate on raw failure counts without first separating environmental/flaky failures from implementation or contract failures.
 - Assume empty session MCP list means AuditScan/sentinel/research do not exist.
 - Treat 192.168.5.215 alone as the MCP catalogue (local Hermes/MonkeySwarm is the plane).
 

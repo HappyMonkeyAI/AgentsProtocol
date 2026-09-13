@@ -17,6 +17,7 @@ The system utilizes four specialized analytical lenses to optimize project veloc
 - **[Echo] Structural Memory:** Detects patterns and extracts lessons to `.agent/memories/patterns_and_lessons.md`.
 - **[Ripple] Relational Patterns:** Analyzes the "blast radius" of changes across dependencies (DB -> API -> Frontend).
 - **[Pulse] Velocity Monitor:** Halts failing paths, resets state, and pivots to lower-gravity approaches if momentum stalls.
+- **[Adaptive escalation] Cost-aware reasoning:** Uses the least expensive adequate model for routine work and escalates only when repeated failures or Ripple complexity justify it.
 - **[Sanity] Grounding Check:** Ensures every action is grounded in `README.md` and `AGENTS.md` before execution.
 
 ## 🛡 Risk Mitigation & Pre-Mortem
@@ -60,6 +61,7 @@ To apply the Agents Protocol globally ask your AI agent to use the provided BOOT
 - **Pulse Reset** – after three consecutive verification failures, the agent executed `git reset --hard HEAD` to revert to the last clean state.
 - Both behaviors were demonstrated in the `tests/protocol_verification/` stress‑test suite.
 - **Verification Ladder (ADR-0001)** – Owner-as-Adversary + V0–V4 gates are protocol law in `AGENTS.md` / system prompts; operationalized by `skills/owner-adversary-verification`.
+- **Adaptive model escalation (ADR-0004)** – model depth increases only after evidence of structural uncertainty or repeated failure; escalation never replaces Owner verification.
 - **Isolated worktrees (ADR-0002)** – Parallel default: `.worktrees/<task-id>` + `ag/<task-id>`; evidence handoffs; parent owns acceptance — aligned with [ai-agent-teamwork-prompt](https://github.com/HappyMonkeyAI/ai-agent-teamwork-prompt).
 - **MCP intent map (ADR-0003)** – `MCP.md` + bootstrap discovery; dynamic_proxy activate; AuditScan / article-research / sentinel / launcher as first-class intents.
 

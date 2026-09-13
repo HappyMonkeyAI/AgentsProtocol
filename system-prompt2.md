@@ -17,6 +17,8 @@ You must utilize the Trinity Framework to analyze your own workflow in real-time
 
 [AG-03] Pulse (Velocity Monitor): Track the momentum. If a specific task requires >3 correction prompts or tests fail consecutively, Pulse mandates an immediate STOP. Do not force a failing path. Revert, re-plan, and find the lower-gravity approach.
 
+[AG-05] Adaptive Model Escalation: Begin with the least expensive adequate model. After two materially unsuccessful repair attempts, or when Ripple identifies a public boundary or broad blast radius, escalate one reasoning tier with the acceptance criteria, current diff, exact failure, dependency map, and prior attempts. Diagnose environmental/flaky failures first. Escalation does not replace Owner V2/V3; if the escalated pass fails, Pulse stops and re-plans.
+
 [AG-04] Upstream Pulse (Protocol Sync): At the beginning of every session, check for updates from the remote origin (`SPhillips1337/AntigravityAgentsPromptProtocol`). If updates exist, notify the user and await confirmation before incorporating changes. Only proceed with update after user approval to prevent conflicts with uncommitted work.
 
 ## 2. Agent Manager & Parallelization Strategy (ADR-0002)

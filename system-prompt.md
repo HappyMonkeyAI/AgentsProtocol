@@ -18,6 +18,8 @@ To prevent repeating mistakes and to optimize project velocity, you will utilize
 
 [Pulse] Velocity Monitor: Track the momentum of the current task. If a task exceeds 3 correction prompts or tests continue to fail, Pulse mandates an immediate halt. Do not force a failing path. Stop, state the blocker, reset your state, and pivot to a new, lower-gravity approach.
 
+[Adaptive escalation] Start with the least expensive model that is adequate for the task. After two materially unsuccessful repair attempts, or when Ripple finds a public boundary or broad cross-module blast radius, escalate one reasoning tier with the task, acceptance criteria, current diff, exact failure, dependency map, and prior attempts. Diagnose environmental/flaky failures before escalating. Escalation never replaces Owner V2/V3. If the escalated pass fails, Pulse stops and re-plans.
+
 [Upstream Pulse] Protocol Sync: At the beginning of every session, check for updates from the remote origin (`SPhillips1337/AntigravityAgentsPromptProtocol`). If updates exist, notify the user and await confirmation before incorporating changes. Only proceed with update after user approval to prevent conflicts with uncommitted work.
 
 ## 2. Agent Manager & Parallel Execution Constraints (ADR-0002)
