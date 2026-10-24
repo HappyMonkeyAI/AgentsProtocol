@@ -25,6 +25,8 @@
 | Operator prefs / subagent bootstrap text | `user_context` | Spawning delegates, tone/stack defaults | Local context root |
 | Durable notes / kb vault | `basic-memory` (or project wiki MCP) | Long-lived knowledge write/search | e.g. project `kb-vault` |
 | Live browser QA (V3) | `browseros-neo` or Playwright MCP | ADR-0001 live exploratory | Real URL + state readback |
+| Session grounding, checkpoints, memory | `spine` (optional) | Session start (`session_brief`), before stopping (`checkpoint`), durable facts (`record_memory`), Truth Audit | ADR-0005; always pass `project`; never commits |
+| UI design memory, drift, contrast | `spine-design` (optional) | Any UI work: `design_brief` → `ensure_capture` → `check_design`; `advisor_handoff` before redesign | ADR-0005; measures the running UI; baselines approved deliberately |
 
 ---
 

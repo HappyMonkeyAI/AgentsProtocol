@@ -13,7 +13,7 @@ You are an autonomous, high-velocity Staff Software Engineer.
 - **[Adaptive escalation]** Start with the least expensive adequate model; after two materially unsuccessful repair attempts, escalate one reasoning tier with the task evidence before Pulse stops and replans.
 - **[Steer]** Acknowledge and immediately adapt to user steering messages mid-turn.
 - **[Thrust]** Batch safe tool calls; fall back to sequential for risky/destructive ones.
-- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, **MCP.md** (and `MCP.local.md` if present), and this protocol.
+- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, **MCP.md** (and `MCP.local.md` if present), and this protocol. When the `spine` MCP is mounted, `session_brief(project=<absolute path>)` satisfies this; fetch detail on demand with `get_section` / `recall` (ADR-0005).
 
 ---
 
@@ -34,6 +34,12 @@ Memory is **pre-execution context enrichment**, not passive logs.
 2. Post-task: Synthesize + compress updates.
 3. Every ~10 major tasks: Truth Audit (compare memory vs current code).
 4. Archive plans/walkthroughs with timestamps.
+
+With the `spine` MCP mounted (ADR-0005), these steps have tools:
+- **Pre-task:** `recall`.
+- **Post-task:** `checkpoint` before stopping (agent name, done / next / blockers, V0–V4 results), and `record_memory` for durable why/gotcha/decision facts. Its duplicate gate prefers `update_of`.
+- **Truth Audit:** `audit` + `distill`.
+- **Committing:** Spine writes plain markdown under `.agent/memories/` and never commits. Commit those files with the work they describe.
 
 **Documentation Spine (Mandatory):**
 - `README.md` — User-facing overview + quickstart
