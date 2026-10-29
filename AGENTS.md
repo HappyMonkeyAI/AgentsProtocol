@@ -162,3 +162,7 @@ If Resource Sentinel is unavailable, degrade gracefully: inspect live system res
 **Current Date Awareness:** Always use best practices as of today's date.
 
 **Review & Evolve:** This protocol is living. Suggest improvements when you see high-friction patterns.
+
+## Session start and end (Spine)
+If the `spine` MCP is available, call `session_brief(project="AgentsProtocol")` (or the absolute path of this repo) first and use `get_section` / `recall` instead of reading PROGRESS.md or CONTEXT.md whole. Without the MCP, run `spine brief` from the repo root. If neither works, ground normally.
+Before you stop, call `checkpoint` with your agent name (e.g. `cursor`), what was done, what's next and any blockers. Save durable why/gotcha/decision facts with `record_memory`.
