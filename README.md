@@ -31,7 +31,8 @@ The Agents Protocol incorporates a mandatory **Pre-Flight Pre-Mortem** for all m
 - `MCP.md`: Intent → MCP server routing (ADR-0003); optional gitignored `MCP.local.md`.
 - `docs/adr/`: Architecture Decision Records (e.g. Verification Ladder, worktrees, MCP map).
 - `research/`: External references and cherry-pick/avoid notes.
-- `BOOTSTRAP.md`: Spine install, **MCP discovery**, and LTM bootstrap for target projects.
+- `BOOTSTRAP.md`: Doc spine install, **Spine warm-start** (ADR-0005), **MCP discovery**, and LTM bootstrap for target projects.
+- `templates/cursor-hooks.json.example`: Cursor `sessionStart` → `spine brief --cursor-hook`.
 - `system-prompt.md`: The unified master prompt for agent configuration.
 - `skills/owner-adversary-verification/`: Operational checklist for pre-Done proof.
 - `skills/isolated-worktree-handoff/`: Parallel-safe worktrees, context packs, evidence handoffs (ADR-0002).
@@ -48,8 +49,8 @@ Inspired by Langchain Deep Agents, our memory is split between ephemeral context
 ## 🚦 Usage
 
 1. **Initialize:** Use the content from `system-prompt.md` in your agent's system instructions.
-2. **Bootstrap:** Run `BOOTSTRAP.md` — spine files, **MCP discovery** (`MCP.md` / `MCP.local.md`), then LTM population.
-3. **Automate:** Agents run the **Verification Ladder** (ADR-0001): deterministic checks, contract/Ripple, Owner-as-Adversary tests, bounded live/exploratory proof, then fix-loop. Ratchet (commit) only after applicable stages pass — Worker self-report is never Done proof. Route tools via **MCP.md** (ADR-0003).
+2. **Bootstrap:** Run `BOOTSTRAP.md` — spine files, **Spine warm-start** (ADR-0005), **MCP discovery** (`MCP.md` / `MCP.local.md`), then LTM population.
+3. **Automate:** Agents run the **Verification Ladder** (ADR-0001): deterministic checks, contract/Ripple, Owner-as-Adversary tests, bounded live/exploratory proof, then fix-loop. Ratchet (commit) only after applicable stages pass — Worker self-report is never Done proof. Route tools via **MCP.md** (ADR-0003). Warm-start with Spine `session_brief` when available (ADR-0005).
 
 ## 🌐 Global Registration & Findings
 
@@ -64,6 +65,7 @@ To apply the Agents Protocol globally ask your AI agent to use the provided BOOT
 - **Adaptive model escalation (ADR-0004)** – model depth increases only after evidence of structural uncertainty or repeated failure; escalation never replaces Owner verification.
 - **Isolated worktrees (ADR-0002)** – Parallel default: `.worktrees/<task-id>` + `ag/<task-id>`; evidence handoffs; parent owns acceptance — aligned with [ai-agent-teamwork-prompt](https://github.com/HappyMonkeyAI/ai-agent-teamwork-prompt).
 - **MCP intent map (ADR-0003)** – `MCP.md` + bootstrap discovery; dynamic_proxy activate; AuditScan / article-research / sentinel / launcher as first-class intents.
+- **Spine warm-start (ADR-0005)** – `session_brief` satisfies Sanity when mounted; `checkpoint` / `record_memory` end sessions; thin project stubs + Cursor hooks; protocol keeps shared law.
 
 Now every new AI session will enforce these actions and rules, ensuring momentum is never lost.
 

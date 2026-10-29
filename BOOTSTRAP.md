@@ -22,6 +22,19 @@ Optional: `templates/MCP.local.md.example` → **`MCP.local.md`** (prefer gitign
 
 ---
 
+## 0b. Spine warm-start (ADR-0005)
+
+**Goal:** Cheap Sanity grounding and durable session ends without dumping whole CONTEXT/PROGRESS every time. AgentsProtocol still owns behavior law; this step only wires the query layer.
+
+1. Confirm **`spine`** is on PATH (or mount the `spine` MCP). If missing, note it in `MCP.local.md` and continue — do not block bootstrap.
+2. Register this project in the operator Spine registry / launcher-registry when named resolution is wanted (`SPINE_REGISTRY` or `~/.spine/registry.json`). Prefer absolute path as the always-works fallback.
+3. Ensure `.agent/memories/` exists (Spine writes checkpoints/memories only under `.agent/`).
+4. **Cursor projects:** copy `templates/cursor-hooks.json.example` → `.cursor/hooks.json` (`sessionStart` → `spine --project . brief --cursor-hook`).
+5. Keep a short **Session start and end (Spine)** block in project `AGENTS.md` (see protocol `AGENTS.md`); do not paste the full protocol via injection.
+6. Smoke: `spine --project . brief` (or MCP `session_brief`) returns a cited brief; `spine --project . brief --cursor-hook` returns JSON with `additional_context` when using Cursor hooks.
+
+---
+
 ## 1. MCP discovery (ADR-0003) — do this before deep mining
 
 **Goal:** Produce an accurate **mounted vs wanted** picture for *this* machine and *this* project. Listed in `MCP.md` is not the same as mounted.
@@ -45,6 +58,7 @@ When Dynamic MCP Proxy / Hermes tools are available:
    - planning/research → article-research-mcp (MonkeySwarm research profile)
    - UK/US open data → OpenUK / OpenUS MCPs
    - UI → browseros-neo / playwright
+   - project warm-start / checkpoint → spine (ADR-0005)
    - DB → postgres/sqlite/neo4j only if stack uses them
 5. Activate high-value missing servers when safe (proxy_activate_server)
 6. launcher_registry: register or upsert this project if missing; check ports
@@ -129,7 +143,8 @@ Replace with this repository’s real focus areas. Protocol-repo example themes:
 1. Verification Ladder / Owner-as-Adversary (ADR-0001)
 2. Isolated worktrees (ADR-0002)
 3. MCP intent map + bootstrap discovery (ADR-0003)
-4. Ratchet / Pulse stress behavior
+4. Spine warm-start (ADR-0005)
+5. Ratchet / Pulse stress behavior
 
 ---
 

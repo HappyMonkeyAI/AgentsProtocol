@@ -12,17 +12,19 @@ Protocol repository: agent behavior rules, system prompts, curated skills, LTM l
 | [ADR-0002](docs/adr/0002-isolated-worktrees-and-evidence-handoffs.md) | Branch/worktree mode for parallel work; context packs; evidence handoffs. Upstream: ai-agent-teamwork-prompt ADR-003. |
 | [ADR-0003](docs/adr/0003-mcp-intent-map-and-bootstrap-discovery.md) | `MCP.md` intent routing + bootstrap discovery → `MCP.local.md`. Listed ≠ mounted; live proxy wins availability. |
 | [ADR-0004](docs/adr/0004-adaptive-model-escalation.md) | Provider-neutral model escalation after evidence of structural uncertainty or repeated failure; Pulse remains the stop/replan boundary. |
+| [ADR-0005](docs/adr/0005-spine-warm-start.md) | Spine warm-start: `session_brief` satisfies Sanity when available; `checkpoint` / `record_memory` end sessions; `audit`+`distill` for Truth Audit. Protocol owns law; thin stubs + hooks in projects. |
 
 ## Rules (high signal)
 
 - Documentation spine: README, CONTEXT, AGENTS, **MCP.md**, `docs/adr/`, `research/`.
-- Trinity: Echo / Ripple / Pulse (+ Sanity grounding including MCP.md).
+- Trinity: Echo / Ripple / Pulse (+ Sanity grounding including MCP.md; Spine brief when mounted — ADR-0005).
 - uSwarm: Architect → Manager → Worker → **Owner (adversary verify & merge)**.
 - Parallel Workers default to isolated `.worktrees/<task-id>` + `ag/<task-id>` (ADR-0002).
 - Ratchet only after applicable Verification Ladder stages (or recorded human waiver).
 - Start with the least expensive adequate model; escalate once after two materially unsuccessful repairs or clear Ripple complexity, then stop/re-plan if escalation fails.
 - Prefer small vertical slices over giant features + heavy QA.
 - MCP: route by intent; dynamic_proxy activate when missing; no secrets in git.
+- Spine: brief first, section/recall for detail; checkpoint before stop; never block a session if Spine is missing.
 
 ## What not to do
 
@@ -37,6 +39,8 @@ Protocol repository: agent behavior rules, system prompts, curated skills, LTM l
 - Escalate on raw failure counts without first separating environmental/flaky failures from implementation or contract failures.
 - Assume empty session MCP list means AuditScan/sentinel/research do not exist.
 - Treat 192.168.5.215 alone as the MCP catalogue (local Hermes/MonkeySwarm is the plane).
+- Use Spine to centralize or replace AgentsProtocol law; keep thin project stubs (ADR-0005).
+- Block session start when Spine/MCP is unavailable — fall back to normal doc grounding.
 
 ## Research
 

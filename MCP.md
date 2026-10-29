@@ -25,6 +25,7 @@
 | Operator prefs / subagent bootstrap text | `user_context` | Spawning delegates, tone/stack defaults | Local context root |
 | Durable notes / kb vault | `basic-memory` (or project wiki MCP) | Long-lived knowledge write/search | e.g. project `kb-vault` |
 | Live browser QA (V3) | `browseros-neo` or Playwright MCP | ADR-0001 live exploratory | Real URL + state readback |
+| Project warm-start / session end | `spine` | Session start Sanity; before stop; Truth Audit | ADR-0005 — `session_brief` / `checkpoint` / `audit`; CLI `spine brief` if MCP unmounted; Cursor hook: `templates/cursor-hooks.json.example` |
 
 ---
 
@@ -58,6 +59,7 @@ MonkeySwarm profiles (`swarm` / `research` / `data` / `full`): see install root 
 [ ] dynamic_proxy: list active + search intents for this project
 [ ] resource_sentinel: available? (required before heavy parallel/build)
 [ ] launcher_registry: project registered? ports free?
+[ ] spine: MCP or CLI? (ADR-0005 warm-start; Cursor hooks if applicable)
 [ ] Domain extras: AuditScan / article-research / public-data if stack needs them
 [ ] Write or refresh project MCP.local.md with: mounted names, missing-but-wanted, host hints
 [ ] Do not treat empty session tool list as empty fleet
