@@ -8,4 +8,4 @@ This directory contains Architecture Decision Records (ADRs) for Agents Protocol
 | [0002](0002-isolated-worktrees-and-evidence-handoffs.md) | Isolated worktrees, branch mode, evidence handoffs | Accepted | 2026-09-03 |
 | [0003](0003-mcp-intent-map-and-bootstrap-discovery.md) | MCP intent map and bootstrap discovery | Accepted | 2026-09-03 |
 | [0004](0004-adaptive-model-escalation.md) | Adaptive model escalation | Accepted | 2026-09-13 |
-| [0005](0005-spine-warm-start.md) | Spine warm-start (brief, checkpoint, audit) | Accepted | 2026-10-29 |
+| [0005](0005-spine-warm-start.md) | Spine warm-start and design memory | Accepted | 2026-10-29 |

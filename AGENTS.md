@@ -30,10 +30,11 @@ Memory is **pre-execution context enrichment**, not passive logs.
 **Persistent Store:** `.agent/memories/` (or sometimes found in the older `.antigravity/memories/` we have now migrated away from)
 
 **Protocol:**
-1. Pre-task: Query memory with relevant tags → inject structured summary.
-2. Post-task: Synthesize + compress updates.
+1. Pre-task: Query memory with relevant tags → inject structured summary (prefer Spine `recall` when available).
+2. Post-task: Synthesize + compress updates. With Spine (ADR-0005): `checkpoint` before stopping; `record_memory` for durable why/gotcha/decision facts (duplicate gate prefers `update_of`). Spine writes markdown under `.agent/memories/` and never commits — commit those files with the work.
 3. Every ~10 major tasks: Truth Audit (compare memory vs current code; prefer Spine `audit` + `distill` when available — ADR-0005).
 4. Archive plans/walkthroughs with timestamps.
+5. UI work (when `spine-design` mounted): `design_brief` → `ensure_capture` → `check_design`; approve baselines deliberately.
 
 **Documentation Spine (Mandatory):**
 - `README.md` — User-facing overview + quickstart

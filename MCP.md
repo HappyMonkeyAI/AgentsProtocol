@@ -26,6 +26,7 @@
 | Durable notes / kb vault | `basic-memory` (or project wiki MCP) | Long-lived knowledge write/search | e.g. project `kb-vault` |
 | Live browser QA (V3) | `browseros-neo` or Playwright MCP | ADR-0001 live exploratory | Real URL + state readback |
 | Project warm-start / session end | `spine` | Session start Sanity; before stop; Truth Audit | ADR-0005 — `session_brief` / `checkpoint` / `audit`; CLI `spine brief` if MCP unmounted; Cursor hook: `templates/cursor-hooks.json.example` |
+| UI design memory / drift check | `spine-design` | UI work against `DESIGN.md`; avoid ad-hoc screenshots | ADR-0005 — `design_brief` → `ensure_capture` → `check_design`; approve baselines deliberately |
 
 ---
 

@@ -12,7 +12,7 @@ Protocol repository: agent behavior rules, system prompts, curated skills, LTM l
 | [ADR-0002](docs/adr/0002-isolated-worktrees-and-evidence-handoffs.md) | Branch/worktree mode for parallel work; context packs; evidence handoffs. Upstream: ai-agent-teamwork-prompt ADR-003. |
 | [ADR-0003](docs/adr/0003-mcp-intent-map-and-bootstrap-discovery.md) | `MCP.md` intent routing + bootstrap discovery → `MCP.local.md`. Listed ≠ mounted; live proxy wins availability. |
 | [ADR-0004](docs/adr/0004-adaptive-model-escalation.md) | Provider-neutral model escalation after evidence of structural uncertainty or repeated failure; Pulse remains the stop/replan boundary. |
-| [ADR-0005](docs/adr/0005-spine-warm-start.md) | Spine warm-start: `session_brief` satisfies Sanity when available; `checkpoint` / `record_memory` end sessions; `audit`+`distill` for Truth Audit. Protocol owns law; thin stubs + hooks in projects. |
+| [ADR-0005](docs/adr/0005-spine-warm-start.md) | Spine warm-start + design memory: `session_brief` / `checkpoint` / `audit`; optional `spine-design` for UI drift. Protocol owns law; thin stubs + hooks in projects. |
 
 ## Rules (high signal)
 

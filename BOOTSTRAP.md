@@ -35,6 +35,17 @@ Optional: `templates/MCP.local.md.example` → **`MCP.local.md`** (prefer gitign
 
 ---
 
+## 1f. Design memory wiring (optional, ADR-0005)
+
+Only if `spine-design` is mounted or activatable (one live check, per ADR-0003). Skip silently otherwise. For UI projects (web UI, ideally `DESIGN.md` with token frontmatter):
+
+1. Create `.agent/design/spine-design.toml` with `base_url` (local dev server), `wait_for` (selector meaning “rendered”), and `mask` (private surfaces).
+2. Run `ensure_capture` for the default view (both themes if applicable), then `check_design`.
+3. Approve a baseline only once someone has looked at it.
+4. Record what was wired in `MCP.local.md`. Commit `spine-design.toml`, baselines, and `inventory.json` only if the project wants shared design memory.
+
+---
+
 ## 1. MCP discovery (ADR-0003) — do this before deep mining
 
 **Goal:** Produce an accurate **mounted vs wanted** picture for *this* machine and *this* project. Listed in `MCP.md` is not the same as mounted.
