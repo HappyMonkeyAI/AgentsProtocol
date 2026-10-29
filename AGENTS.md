@@ -36,6 +36,12 @@ Memory is **pre-execution context enrichment**, not passive logs.
 4. Archive plans/walkthroughs with timestamps.
 5. UI work (when `spine-design` mounted): `design_brief` → `ensure_capture` → `check_design`; approve baselines deliberately.
 
+With the `spine` MCP mounted (ADR-0005), these steps have tools:
+- **Pre-task:** `recall`.
+- **Post-task:** `checkpoint` before stopping (agent name, done / next / blockers, V0–V4 results), and `record_memory` for durable why/gotcha/decision facts. Its duplicate gate prefers `update_of`.
+- **Truth Audit:** `audit` + `distill`.
+- **Committing:** Spine writes plain markdown under `.agent/memories/` and never commits. Commit those files with the work they describe.
+
 **Documentation Spine (Mandatory):**
 - `README.md` — User-facing overview + quickstart
 - `CONTEXT.md` — Stack, rules, architecture decisions, "what not to do"

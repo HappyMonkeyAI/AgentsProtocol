@@ -101,6 +101,20 @@ Commit **`MCP.md`** updates when portable. Keep secrets and raw machine credenti
 
 Session grounding must include MCP.md (+ local overlay). Mid-task: route by intent; one live search/activate before “tool missing.”
 
+### 1f. Warm-start and design memory wiring (optional, ADR-0005)
+
+Only if `spine` / `spine-design` are mounted or activatable (one live check, per ADR-0003). Skip silently otherwise.
+
+1. **Verify Spine on this project:** `session_brief(project=<absolute path>)`.
+   - Check that it reports the right branch, recent merges and open tasks.
+   - Read its `warnings`, and note stale task boards or ADR statuses in `MCP.local.md`.
+2. **Point agent files at it.** Add a short "session start and end" section to the project's agent instruction files (`AGENTS.md`, `HERMES.md`, …): start with `session_brief`, and `checkpoint` before stopping.
+3. **UI projects only** (a web UI, ideally a `DESIGN.md` with token frontmatter):
+   - Create `.agent/design/spine-design.toml` with `base_url` (the local dev server), `wait_for` (a selector meaning "rendered") and `mask` (anything private, e.g. terminal panes).
+   - Run `ensure_capture` for the default view (both themes if the app has them), then `check_design`.
+   - Approve a baseline only once someone has looked at it.
+4. **Record what was wired** in `MCP.local.md`. Commit `.agent/design/spine-design.toml`, baselines and `inventory.json` only if the project wants shared design memory. The capture cache ignores itself.
+
 ---
 
 ## 2. Context mining (LTM)
