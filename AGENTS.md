@@ -30,17 +30,11 @@ Memory is **pre-execution context enrichment**, not passive logs.
 **Persistent Store:** `.agent/memories/` (or sometimes found in the older `.antigravity/memories/` we have now migrated away from)
 
 **Protocol:**
-1. Pre-task: Query memory with relevant tags → inject structured summary (prefer Spine `recall` when available).
-2. Post-task: Synthesize + compress updates. With Spine (ADR-0005): `checkpoint` before stopping; `record_memory` for durable why/gotcha/decision facts (duplicate gate prefers `update_of`). Spine writes markdown under `.agent/memories/` and never commits — commit those files with the work.
-3. Every ~10 major tasks: Truth Audit (compare memory vs current code; prefer Spine `audit` + `distill` when available — ADR-0005).
+1. Pre-task: Query memory with relevant tags → inject structured summary (prefer Spine `recall` when available — ADR-0005).
+2. Post-task: Synthesize + compress updates. With Spine: `checkpoint` before stopping (agent, done / next / blockers, V0–V4 when applicable); `record_memory` for durable why/gotcha/decision facts (duplicate gate prefers `update_of`). Spine writes markdown under `.agent/memories/` and never commits — commit those files with the work.
+3. Every ~10 major tasks: Truth Audit (prefer Spine `audit` + `distill` when available).
 4. Archive plans/walkthroughs with timestamps.
 5. UI work (when `spine-design` mounted): `design_brief` → `ensure_capture` → `check_design`; approve baselines deliberately.
-
-With the `spine` MCP mounted (ADR-0005), these steps have tools:
-- **Pre-task:** `recall`.
-- **Post-task:** `checkpoint` before stopping (agent name, done / next / blockers, V0–V4 results), and `record_memory` for durable why/gotcha/decision facts. Its duplicate gate prefers `update_of`.
-- **Truth Audit:** `audit` + `distill`.
-- **Committing:** Spine writes plain markdown under `.agent/memories/` and never commits. Commit those files with the work they describe.
 
 **Documentation Spine (Mandatory):**
 - `README.md` — User-facing overview + quickstart
