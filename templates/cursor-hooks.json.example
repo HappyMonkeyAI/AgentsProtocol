@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "spine --project . brief --cursor-hook",
+        "timeout": 45
+      }
+    ]
+  }
+}

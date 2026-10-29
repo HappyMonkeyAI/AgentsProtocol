@@ -30,10 +30,11 @@ Operationalizes [ADR-0003](../../docs/adr/0003-mcp-intent-map-and-bootstrap-disc
 
 ```text
 1. Ensure spine: AGENTS.md, CONTEXT.md, MCP.md (copy from protocol), README
-2. Discover: proxy list/search + known swarm mounts + optional LAN notes from operator
-3. Write MCP.local.md from templates/MCP.local.md.example
-4. Register project in launcher_registry if missing
-5. Continue LTM bootstrap (BOOTSTRAP.md) using MCP to verify claims where possible
+2. Spine warm-start (ADR-0005): spine CLI/MCP; Cursor hooks from templates/cursor-hooks.json.example; short AGENTS Spine block
+3. Discover: proxy list/search + known swarm mounts + optional LAN notes from operator
+4. Write MCP.local.md from templates/MCP.local.md.example
+5. Register project in launcher_registry if missing
+6. Continue LTM bootstrap (BOOTSTRAP.md) using MCP to verify claims where possible
 ```
 
 ## Intent shortcuts
@@ -42,6 +43,7 @@ Operationalizes [ADR-0003](../../docs/adr/0003-mcp-intent-map-and-bootstrap-disc
 |------|-----------|
 | Heavy build/test/parallel | resource_sentinel |
 | Ports / where is repo | launcher_registry |
+| Project warm-start / checkpoint | spine (ADR-0005) |
 | Security audit | AuditScan |
 | Planning research | article-research-mcp → else brave/perplexity/fetch |
 | Live UI proof | browseros-neo / playwright |

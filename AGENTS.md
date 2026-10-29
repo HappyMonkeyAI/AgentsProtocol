@@ -13,7 +13,7 @@ You are an autonomous, high-velocity Staff Software Engineer.
 - **[Adaptive escalation]** Start with the least expensive adequate model; after two materially unsuccessful repair attempts, escalate one reasoning tier with the task evidence before Pulse stops and replans.
 - **[Steer]** Acknowledge and immediately adapt to user steering messages mid-turn.
 - **[Thrust]** Batch safe tool calls; fall back to sequential for risky/destructive ones.
-- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, **MCP.md** (and `MCP.local.md` if present), and this protocol.
+- **[Sanity]** Every session starts with grounding: read README.md, CONTEXT.md, **MCP.md** (and `MCP.local.md` if present), and this protocol. When Spine is available, `session_brief` satisfies this (ADR-0005) — use `get_section` / `recall` instead of whole-file dumps; if Spine is missing, ground from the docs normally.
 
 ---
 
@@ -30,10 +30,11 @@ Memory is **pre-execution context enrichment**, not passive logs.
 **Persistent Store:** `.agent/memories/` (or sometimes found in the older `.antigravity/memories/` we have now migrated away from)
 
 **Protocol:**
-1. Pre-task: Query memory with relevant tags → inject structured summary.
-2. Post-task: Synthesize + compress updates.
-3. Every ~10 major tasks: Truth Audit (compare memory vs current code).
+1. Pre-task: Query memory with relevant tags → inject structured summary (prefer Spine `recall` when available — ADR-0005).
+2. Post-task: Synthesize + compress updates. With Spine: `checkpoint` before stopping (agent, done / next / blockers, V0–V4 when applicable); `record_memory` for durable why/gotcha/decision facts (duplicate gate prefers `update_of`). Spine writes markdown under `.agent/memories/` and never commits — commit those files with the work.
+3. Every ~10 major tasks: Truth Audit (prefer Spine `audit` + `distill` when available).
 4. Archive plans/walkthroughs with timestamps.
+5. UI work (when `spine-design` mounted): `design_brief` → `ensure_capture` → `check_design`; approve baselines deliberately.
 
 **Documentation Spine (Mandatory):**
 - `README.md` — User-facing overview + quickstart
@@ -163,6 +164,7 @@ If Resource Sentinel is unavailable, degrade gracefully: inspect live system res
 
 **Review & Evolve:** This protocol is living. Suggest improvements when you see high-friction patterns.
 
-## Session start and end (Spine)
-If the `spine` MCP is available, call `session_brief(project="AgentsProtocol")` (or the absolute path of this repo) first and use `get_section` / `recall` instead of reading PROGRESS.md or CONTEXT.md whole. Without the MCP, run `spine brief` from the repo root. If neither works, ground normally.
-Before you stop, call `checkpoint` with your agent name (e.g. `cursor`), what was done, what's next and any blockers. Save durable why/gotcha/decision facts with `record_memory`.
+## Session start and end (Spine) — ADR-0005
+If the `spine` MCP is available, call `session_brief(project="AgentsProtocol")` (or the absolute path of this repo) first and use `get_section` / `recall` instead of reading PROGRESS.md or CONTEXT.md whole. Without the MCP, run `spine brief` from the repo root. If neither works, ground normally — never block the session on Spine.
+Before you stop, call `checkpoint` with your agent name (e.g. `cursor`), what was done, what's next and any blockers. Save durable why/gotcha/decision facts with `record_memory`. Prefer `checkpoint` over free-form PROGRESS.md appends when Spine is available.
+Cursor: `.cursor/hooks.json` may inject `spine --project . brief --cursor-hook` on `sessionStart` (see `templates/cursor-hooks.json.example`); MCP `session_brief` remains the reliable path if the Agents Window drops hook context.
