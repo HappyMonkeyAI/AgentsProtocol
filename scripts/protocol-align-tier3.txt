@@ -1,0 +1,20 @@
+# Tier-3: remaining git checkouts under ~/projects
+/home/stephen/projects/LinkedIn|linkedin
+/home/stephen/projects/video-transcription|video-transcription
+/home/stephen/projects/AI-AB-tester|ai-ab-tester
+/home/stephen/projects/AutoAgent|autoagent
+/home/stephen/projects/ClawTeam|clawteam
+/home/stephen/projects/Scrapling|scrapling
+/home/stephen/projects/agent-prompts|agent-prompts
+/home/stephen/projects/ai-marketplace|ai-marketplace
+/home/stephen/projects/comfypress-gateway|comfypress-gateway
+/home/stephen/projects/demo6|demo6
+/home/stephen/projects/happymonkey-dev-ecosystem|happymonkey-dev-ecosystem
+/home/stephen/projects/iris|iris
+/home/stephen/projects/jev_mcp|jev-mcp
+/home/stephen/projects/jev_mcp-merged|jev-mcp-merged
+/home/stephen/projects/local-ai-planner|local-ai-planner
+/home/stephen/projects/securerepo-ai|securerepo-ai
+/home/stephen/projects/webshare|webshare
+/home/stephen/projects/xfeed|xfeed
+/home/stephen/projects/xmarks|xmarks

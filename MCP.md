@@ -36,6 +36,8 @@
 |--------|--------------------|---------------------|---------------|
 | **Security / vulnerability audit** | **`auditscan`** (HappyMonkeyAI/AuditScan stdio FastMCP bridge) | Hermes always-on when configured · else `proxy_activate_server("auditscan")` · cmd: `uv --directory <AuditScan> run --extra mcp python -m repo_audit_scan.mcp_stdio` | Trident **input**, not Owner V2/V3 substitute |
 | **Article / tutorial research** | **`article_research`** | Hermes always-on when configured · else `proxy_activate_server("article_research")` · `uv --directory <article-research-mcp> run article-research-mcp` | Planning / Deep Mode RECON |
+| **Structured choice / decision evaluation** | **`kev-decision-mcp`** (Kev pointer-head; Hermes `kev` / `kev_157`) | Hermes always-on when configured · else `proxy_search_tools("Kev structured decision")` → `proxy_activate_server("kev-decision-mcp")` | `kev_evaluate` for typed criteria; `kev_permute` order-stability; `kev_separate` packed-vs-individual. Not free-form text; validate against source context |
+| **Library / API pattern RAG (Codex vault)** | **`neo4j-semantic-search`** (LLM-Codex-Reference-Vault) | Hermes `neo4j_semantic_search` · else `proxy_activate_server("neo4j-semantic-search")` then `*_load` before search tools | Planning Memory — hybrid/vector/keyword over vault graph; backend often `.232` Neo4j+Ollama |
 | Social / trend research | **`social_research`** | On-demand: `proxy_activate_server("social_research")` · research profile | Content planning |
 | dev.to articles | `devto-mcp-server` | research profile | Lightweight article search |
 | UK public data | OpenUKPublicDataMCP | `data` profile | Domain verticals |
@@ -61,7 +63,7 @@ MonkeySwarm profiles (`swarm` / `research` / `data` / `full`): see install root 
 [ ] resource_sentinel: available? (required before heavy parallel/build)
 [ ] launcher_registry: project registered? ports free?
 [ ] spine: MCP or CLI? (ADR-0005 warm-start; Cursor hooks if applicable)
-[ ] Domain extras: AuditScan / article-research / public-data if stack needs them
+[ ] Domain extras: AuditScan / article-research / Kev decision / public-data / vault semantic search if stack needs them
 [ ] Write or refresh project MCP.local.md with: mounted names, missing-but-wanted, host hints
 [ ] Do not treat empty session tool list as empty fleet
 ```
@@ -74,7 +76,7 @@ MonkeySwarm profiles (`swarm` / `research` / `data` / `full`): see install root 
 |------|-----------------|----------------|
 | **Local Windows + Hermes** | Primary MCP plane: `dynamic_proxy`, coordination, sentinel, launcher, user_context, basic-memory, browseros-neo, … | Default for protocol work on this operator machine |
 | **MonkeySwarm root** | `~/happymonkey` or install `Documents/development/MonkeySwarm` | Component clones + `components.json` profiles |
-| **192.168.5.215** | LAN host: SSH **22**, HTTPS **443** (nginx), **8080** (nginx default), **8081** (TLS-ish nginx), **9000** (WebShare-style file share). Not a substitute for the local MCP catalogue as of 2026-09-03 scan. | Use for LAN deploys/files/services when CONTEXT says so; still route MCP via local proxy unless a project documents an MCP HTTP endpoint on this host |
+| **192.168.5.215** | Operator host (this plane): launcher registry, Resource Sentinel, DynamicMCPProxy, spine-mcp, LLM Codex Reference Vault MCP, kb-vault clone. Graph/embed backend often **192.168.5.232** (Neo4j bolt + Ollama). | Prefer local Hermes MCP / `dynamic_proxy` catalogue; vault search = `neo4j_semantic_search` or proxy `neo4j-semantic-search` (activate + `_load`). Desktop kb-vault canonical may still be **.229** until synced |
 | **192.168.5.80** | (operator stack) Expo/EAS / live test host when project CONTEXT says | Not MCP catalogue |
 
 Refresh host rows in **`MCP.local.md`** after real probes; keep protocol `MCP.md` generic.
@@ -100,7 +102,7 @@ Template: `templates/MCP.local.md.example`
 
 ## Anti-patterns
 
-- Ignoring AuditScan / research MCPs because they are not in the initial tool list
+- Ignoring AuditScan / research / Kev / vault semantic-search MCPs because they are not in the initial tool list
 - Running heavy parallel builds without sentinel when it is installed
 - Binding ports without launcher_registry / get_used_ports
 - Dumping full proxy catalogue into every prompt

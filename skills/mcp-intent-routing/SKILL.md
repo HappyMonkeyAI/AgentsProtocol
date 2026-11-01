@@ -46,6 +46,8 @@ Operationalizes [ADR-0003](../../docs/adr/0003-mcp-intent-map-and-bootstrap-disc
 | Project warm-start / checkpoint | spine (ADR-0005) |
 | Security audit | AuditScan |
 | Planning research | article-research-mcp → else brave/perplexity/fetch |
+| Structured multi-option decision | kev-decision-mcp (`kev_evaluate` / permute / separate) |
+| Library/API pattern RAG | neo4j-semantic-search (vault; Hermes or proxy activate+load) |
 | Live UI proof | browseros-neo / playwright |
 | Activate unknown | dynamic_proxy |
 | Wiki/notes | basic-memory |

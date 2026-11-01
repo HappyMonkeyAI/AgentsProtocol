@@ -1,0 +1,27 @@
+# Tier-1: local stack we stood up + active products/MCP plane
+# path|optional-slug
+/home/stephen/projects/spine-mcp|spine-mcp
+/home/stephen/projects/Resource-Sentinel-MCP|resource-sentinel-mcp
+/home/stephen/projects/AgentsProtocol|AgentsProtocol
+/home/stephen/projects/MonkeySwarm|monkey-swarm
+/home/stephen/projects/kb-vault|kb-vault
+/home/stephen/projects/MRPGRealms|mrpg-realms
+/home/stephen/projects/MRPGRealms-development|mrpg-realms-development
+/home/stephen/projects/AuditScan|auditscan
+/home/stephen/projects/article-research-mcp|article-research-mcp
+/home/stephen/projects/agent-communication-mcp|agent-communication-mcp
+/home/stephen/projects/agent-coordination-mcp|agent-coordination-mcp
+/home/stephen/projects/launcher-project-registry|launcher-project-registry
+/home/stephen/dynamic-mcp-proxy-server|dynamic-mcp-proxy
+/home/stephen/Documents/www/LLM-Codex-Reference-Vault|llm-codex-reference-vault
+/home/stephen/projects/EchoesOfAion|echoes-of-aion
+/home/stephen/projects/Inkstead|inkstead
+/home/stephen/projects/xeno-gate-tactical|xeno-gate-tactical
+/home/stephen/projects/xeno-gate-ggez|xeno-gate-ggez
+/home/stephen/projects/herdingcats|herdingcats
+/home/stephen/projects/OpenUKPublicDataMCP|openuk-public-data-mcp
+/home/stephen/projects/songbird-agent-mcp|songbird-agent-mcp
+/home/stephen/projects/browserosNeoBridge|browseros-neo-bridge
+/home/stephen/projects/html-design-advisor-mcp|html-design-advisor-mcp
+/home/stephen/projects/kev-mcp-http|kev-mcp-http
+/home/stephen/projects/Agent-Voice-TTS|agent-voice-tts

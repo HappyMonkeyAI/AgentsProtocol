@@ -72,7 +72,7 @@ Ground Truth Over Guesswork: Before halting a task due to "missing context," agg
 
 **Listed ≠ mounted:** If the needed server is not in the session tool list, use `dynamic_proxy` (`proxy_search_tools` / `proxy_list_available_servers` / `proxy_activate_server`). One live check before claiming unavailable. Empty active list ≠ empty fleet.
 
-**HappyMonkey specialty intents (lazy-load OK):** AuditScan (security/Trident input), article-research-mcp (planning RECON), resource_sentinel (heavy jobs), launcher_registry (ports/projects), **spine** (warm-start / checkpoint — ADR-0005), browseros-neo/playwright (ADR-0001 V3).
+**HappyMonkey specialty intents (lazy-load OK):** AuditScan (security/Trident input), article-research-mcp (planning RECON), **Kev decision MCP** (`kev` / `kev_157` in Hermes; `kev-decision-mcp` via `dynamic_proxy`; `kev_evaluate` / `kev_permute` / `kev_separate` — pointer-head, not free-form text; validate against supplied criteria), resource_sentinel (heavy jobs), launcher_registry (ports/projects), **spine** (warm-start / checkpoint — ADR-0005), vault `neo4j-semantic-search` (library/API RAG), browseros-neo/playwright (ADR-0001 V3).
 
 **Spine (ADR-0005):** When available, `session_brief` satisfies Sanity grounding; use `get_section` / `recall` instead of whole CONTEXT/PROGRESS dumps. Before stop: `checkpoint` + `record_memory`. If Spine is missing, ground from docs normally — never block the session.
 
@@ -83,9 +83,9 @@ Transparent Context: When you use an MCP tool to fetch data, briefly state what 
 **Bootstrap:** Installing protocol into a repo runs `BOOTSTRAP.md` §0b Spine warm-start + §1 MCP discovery → refresh `MCP.local.md`. Skill: `mcp-intent-routing`.
 
 ### Additional MCP Tooling: Semantic Context Layer
-- **Primary Tool**: `neo4j-semantic-search`
-- **Source**: [LLM-Codex-Reference-Vault](https://github.com/SPhillips1337/LLM-Codex-Reference-Vault)
-- **Execution Rule**: Before finalizing any code architecture plan (Planning Memory), the Agent MUST invoke `neo4j-semantic-search` to verify language-specific patterns (PHP, Python, JS, C#) stored in the Codex when that MCP is available.
+- **Primary Tool**: `neo4j-semantic-search` (Hermes: `neo4j_semantic_search`; DynamicMCPProxy catalogue: activate `neo4j-semantic-search` then call `neo4j-semantic-search_load` before search tools)
+- **Source**: [LLM-Codex-Reference-Vault](https://github.com/SPhillips1337/LLM-Codex-Reference-Vault) — graph/embed often on **192.168.5.232** when running on the operator host
+- **Execution Rule**: Before finalizing any code architecture plan (Planning Memory), the Agent MUST invoke vault semantic search to verify language-specific patterns (PHP, Python, JS, C#) stored in the Codex when that MCP is available.
 - **Priority**: Context retrieved via MCP overrides baseline LLM training data to ensure project-specific consistency.
 
 ## 6. Lightweight Task Management (The Donahoe Loop)
